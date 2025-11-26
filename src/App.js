@@ -284,7 +284,6 @@ const QUOTES_DB = [
 
 // --- 4. 組件 ---
 
-// 新增 captureMode 屬性，用於強制顯示正面，解決 html2canvas 3D 旋轉截圖問題
 const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, className = "", autoHeight = false, captureMode = false }) => {
   const chakraInfo = CHAKRAS.find(c => c.id === data.type);
   if (!chakraInfo) return null;
@@ -295,7 +294,6 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
   
   return (
     <div 
-      // 如果是 captureMode，移除 perspective，避免 3D 變形干擾截圖
       className={`relative w-64 ${heightClass} cursor-pointer ${!captureMode ? 'perspective-1000' : ''} transition-transform duration-700 ${className} ${isRevealed && !isMobileFocused ? '' : 'hover:scale-105'}`}
       onClick={onClick}
       style={{ transitionDelay: `${index * 150}ms` }}
@@ -303,7 +301,6 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
       <div className={`relative w-full ${innerHeightClass} ${!captureMode ? 'duration-1000 preserve-3d' : ''} transition-all ${(isRevealed && !captureMode) ? 'rotate-y-180' : ''}`}>
         
         {/* --- 卡牌背面 --- */}
-        {/* 在截圖模式下 (captureMode=true)，直接不渲染背面，確保只看到正面 */}
         {!captureMode && (
           theme === 'night' ? (
             <div className={`absolute w-full h-full backface-hidden rounded-xl shadow-2xl overflow-hidden bg-slate-900 border border-white/10 ${autoHeight ? 'min-h-[24rem]' : ''}`}>
@@ -338,8 +335,8 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
         )}
 
         {/* --- 卡牌正面 --- */}
-        {/* 在截圖模式下，移除 rotate-y-180，確保它是正面朝上的靜態 div */}
-        <div className={`absolute w-full h-full backface-hidden rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.1)] ${!captureMode ? 'rotate-y-180' : ''} overflow-hidden flex flex-col items-center text-center p-1 ${theme === 'night' ? 'bg-[#FDFCF8] shadow-black/50' : 'bg-white border border-stone-300 shadow-xl shadow-stone-300/50'}`}>
+        {/* 關鍵修正：在 captureMode 下改用 relative，讓內容撐開容器高度 */}
+        <div className={`${captureMode ? 'relative' : 'absolute'} w-full h-full backface-hidden rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.1)] ${!captureMode ? 'rotate-y-180' : ''} overflow-hidden flex flex-col items-center text-center p-1 ${theme === 'night' ? 'bg-[#FDFCF8] shadow-black/50' : 'bg-white border border-stone-300 shadow-xl shadow-stone-300/50'}`}>
           <div className={`w-full h-full border-2 ${chakraInfo.color} rounded-lg flex flex-col relative overflow-hidden`}>
              <div className={`absolute top-0 left-0 right-0 h-32 opacity-5 bg-gradient-to-b from-${chakraInfo.color.split('-')[1]}-400 to-transparent`}></div>
              <div className="flex-1 flex flex-col items-center p-5 pt-8 relative z-10">
@@ -354,7 +351,6 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
                    {data.type === 'crown' && <Sparkles strokeWidth={1.5} className="w-6 h-6" />}
                 </div>
                 
-                {/* autoHeight 時取消 scrollbar，改為自動長高 */}
                 <div className={`flex-1 w-full flex flex-col items-center justify-center my-2 ${autoHeight ? 'h-auto' : 'overflow-y-auto no-scrollbar'}`}>
                   <h3 className={`text-base font-medium mb-2 leading-relaxed tracking-wide ${theme === 'day' ? chakraInfo.dayTextColor || chakraInfo.textColor : chakraInfo.textColor} font-serif text-center`}>{data.text}</h3>
                   <p className="text-[10px] font-serif italic text-slate-500/80 leading-relaxed font-light text-center px-2">{data.en}</p>
@@ -382,7 +378,7 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
   );
 };
 
-// --- 隱藏的分享卡片生成區 (傳入 autoHeight={true} 和 captureMode={true}) ---
+// --- 隱藏的分享卡片生成區 ---
 const ShareCardView = ({ cardSelected, theme, targetRef }) => {
   if (!cardSelected) return null;
 
@@ -393,7 +389,6 @@ const ShareCardView = ({ cardSelected, theme, targetRef }) => {
         <p className="text-[10px] tracking-[0.4em] opacity-60 uppercase">Daily Energy Oracle</p>
         <div className="mt-1 text-[10px] opacity-40">{new Date().toLocaleDateString()}</div>
       </div>
-      {/* 關鍵修正：加入 captureMode={true}，強制顯示正面，避免 3D 翻轉錯誤 */}
       <Card data={cardSelected} isRevealed={true} index={0} theme={theme} autoHeight={true} captureMode={true} />
       <div className="mt-2 text-[8px] tracking-[0.5em] opacity-40 uppercase">Connect With The Universe</div>
     </div>
