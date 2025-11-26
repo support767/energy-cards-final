@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, RefreshCw, Heart, Zap, Infinity, Star, Move, Eye, Moon, Feather, Sun, Droplets, Wind, Mountain, Flower, Cloud, Download, X, Volume2, VolumeX, Microscope } from 'lucide-react';
 
-// --- 1. 音效資源連結 (使用穩定的 CDN 連結) ---
+// --- 1. 音效資源連結 ---
 const AUDIO_SRC = {
-  dayBgm: "https://assets.mixkit.co/music/preview/mixkit-valley-sunset-127.mp3", // 輕柔吉他
-  nightBgm: "https://assets.mixkit.co/music/preview/mixkit-night-sky-970.mp3",   // 深邃氛圍
-  cardFlip: "https://assets.mixkit.co/sfx/preview/mixkit-game-card-flip-2569.mp3", // 真實翻牌
-  click: "https://assets.mixkit.co/sfx/preview/mixkit-modern-click-box-check-1120.mp3" // 簡約點擊
+  dayBgm: "https://assets.mixkit.co/music/preview/mixkit-valley-sunset-127.mp3",
+  nightBgm: "https://assets.mixkit.co/music/preview/mixkit-night-sky-970.mp3",
+  cardFlip: "https://assets.mixkit.co/sfx/preview/mixkit-game-card-flip-2569.mp3",
+  click: "https://assets.mixkit.co/sfx/preview/mixkit-modern-click-box-check-1120.mp3"
 };
 
 // --- 2. 自定義 SVG 圖示 ---
@@ -374,7 +374,7 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
     >
       <div className={`relative w-full h-full duration-1000 preserve-3d transition-all ${isRevealed ? 'rotate-y-180' : ''}`}>
         
-        {/* --- 卡牌背面 --- */}
+        {/* 卡牌背面 */}
         {theme === 'night' ? (
           <div className="absolute w-full h-full backface-hidden rounded-xl shadow-2xl overflow-hidden bg-slate-900 border border-white/10">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/40 via-slate-900 to-black"></div>
@@ -390,7 +390,6 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
             <p className="absolute bottom-6 w-full text-center text-white/30 text-[10px] tracking-[0.4em] font-light uppercase">Universe</p>
           </div>
         ) : (
-          // 修改：加深日間卡背的邊框與陰影
           <div className="absolute w-full h-full backface-hidden rounded-xl shadow-[0_15px_40px_rgba(0,0,0,0.15)] overflow-hidden bg-white border border-stone-300">
             <div className="absolute inset-0 bg-gradient-to-br from-white via-orange-50/30 to-orange-50/10"></div>
             <div className="absolute inset-0 opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
@@ -407,8 +406,7 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
           </div>
         )}
 
-        {/* --- 卡牌正面 --- */}
-        {/* 修改：增強日間正面卡牌的邊框(border-stone-300)與陰影(shadow-xl) */}
+        {/* 卡牌正面 */}
         <div className={`absolute w-full h-full backface-hidden rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.1)] rotate-y-180 overflow-hidden flex flex-col items-center text-center p-1 ${theme === 'night' ? 'bg-[#FDFCF8] shadow-black/50' : 'bg-white border border-stone-300 shadow-xl shadow-stone-300/50'}`}>
           <div className={`w-full h-full border-2 ${chakraInfo.color} rounded-lg flex flex-col relative overflow-hidden`}>
              <div className={`absolute top-0 left-0 right-0 h-32 opacity-5 bg-gradient-to-b from-${chakraInfo.color.split('-')[1]}-400 to-transparent`}></div>
@@ -426,8 +424,8 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
                 <h3 className={`text-base font-medium mb-3 leading-relaxed tracking-wide ${theme === 'day' ? chakraInfo.dayTextColor || chakraInfo.textColor : chakraInfo.textColor} font-serif min-h-[4.5rem] flex items-center justify-center`}>{data.text}</h3>
                 <p className="text-[10px] font-serif italic text-slate-500/80 leading-relaxed font-light mb-6 px-2">{data.en}</p>
                 
-                {/* 修改：調整留白與間距，往上移 */}
-                <div className="mt-auto w-full mb-10"> 
+                {/* 排版優化：mb-12 增加底部呼吸空間，讓文字往上浮 */}
+                <div className="mt-auto w-full mb-12"> 
                   <div className="flex items-center justify-center gap-2 mb-2 opacity-20">
                      <div className={`h-[1px] flex-1 ${chakraInfo.color.replace('border', 'bg')}`}></div>
                      <Feather className="w-3 h-3 text-slate-400" />
@@ -435,13 +433,11 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
                   </div>
                   <div className={`text-xs text-left leading-relaxed font-light px-4 py-3 rounded bg-slate-50/50 ${theme === 'day' ? chakraInfo.dayTextColor || chakraInfo.textColor : chakraInfo.textColor}`}>
                      <span className="font-bold text-[9px] opacity-60 uppercase tracking-wider block mb-1">Energy Awareness</span>
-                     {/* 新增脈輪名稱標示 */}
                      <div className="font-medium mb-1 opacity-80 text-[10px] tracking-wide">{chakraInfo.name}</div>
                      {chakraInfo.guidance}
                   </div>
                 </div>
              </div>
-             {/* 底部脈輪標籤位置維持，因上方留白增加，整體會上移 */}
              <div className="pb-3 text-[8px] uppercase tracking-[0.2em] text-slate-400/60 font-light mt-2">{chakraInfo.name}</div>
           </div>
         </div>
@@ -451,10 +447,9 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
   );
 };
 
-// --- 隱藏的分享卡片生成區 (用於截圖 - 修改為只顯示單張卡片) ---
+// --- 隱藏的分享卡片 ---
 const ShareCardView = ({ cardSelected, theme, targetRef }) => {
   if (!cardSelected) return null;
-
   return (
     <div ref={targetRef} className={`fixed top-[-9999px] left-[-9999px] w-[400px] p-8 flex flex-col items-center justify-center gap-6 ${theme === 'night' ? 'bg-[#1e2029] text-white' : 'bg-[#F5F5F0] text-slate-800'}`}>
       <div className="text-center mb-2">
@@ -462,7 +457,6 @@ const ShareCardView = ({ cardSelected, theme, targetRef }) => {
         <p className="text-[10px] tracking-[0.4em] opacity-60 uppercase">Daily Energy Oracle</p>
         <div className="mt-1 text-[10px] opacity-40">{new Date().toLocaleDateString()}</div>
       </div>
-      {/* 這裡只顯示一張被選中的卡片 */}
       <Card data={cardSelected} isRevealed={true} index={0} theme={theme} />
       <div className="mt-2 text-[8px] tracking-[0.5em] opacity-40 uppercase">Connect With The Universe</div>
     </div>
@@ -476,17 +470,12 @@ export default function App() {
   const [theme, setTheme] = useState('night');
   const [particles, setParticles] = useState([]);
   const [mobileFocusIndex, setMobileFocusIndex] = useState(0); 
-  
-  // 分享相關狀態
   const [isSharing, setIsSharing] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [cardToShare, setCardToShare] = useState(null); 
   const shareRef = useRef(null);
-
-  // 音效相關狀態
-  const [isMuted, setIsMuted] = useState(false); // 預設開啟聲音 (Default Open)
+  const [isMuted, setIsMuted] = useState(false); 
   const bgmRef = useRef(null);
-  const sfxRef = useRef(null);
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -494,66 +483,44 @@ export default function App() {
     else setTheme('night');
   }, []);
 
-  // 動態加載 html2canvas
   useEffect(() => {
     const script = document.createElement('script');
     script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
     script.async = true;
     document.body.appendChild(script);
-    return () => {
-      if (document.body.contains(script)) {
-        document.body.removeChild(script);
-      }
-    };
+    return () => { if (document.body.contains(script)) document.body.removeChild(script); };
   }, []);
 
-  // 初始化與切換背景音樂
   useEffect(() => {
     if (!bgmRef.current) {
       bgmRef.current = new Audio();
       bgmRef.current.loop = true;
     }
-    
     const bgm = bgmRef.current;
     const targetSrc = theme === 'day' ? AUDIO_SRC.dayBgm : AUDIO_SRC.nightBgm;
-
-    // 如果目前播放的源不同，才切換
     if (bgm.src !== targetSrc) {
       bgm.src = targetSrc;
       bgm.load();
-      if (!isMuted) {
-        bgm.play().catch(e => console.log("Autoplay prevented", e));
-      }
+      if (!isMuted) bgm.play().catch(e => console.log("Autoplay prevented", e));
     }
   }, [theme]);
 
-  // 監聽靜音狀態
   useEffect(() => {
     if (bgmRef.current) {
-      if (isMuted) {
-        bgmRef.current.pause();
-      } else {
-        bgmRef.current.play().catch(e => console.log("Playback failed", e));
-      }
+      if (isMuted) bgmRef.current.pause();
+      else bgmRef.current.play().catch(e => console.log("Playback failed", e));
     }
   }, [isMuted]);
 
-  // 播放音效輔助函式
   const playSfx = (type) => {
     if (isMuted) return;
     const sfx = new Audio(AUDIO_SRC[type]);
-    sfx.volume = 0.6; //稍微降低音效音量，不搶戲
+    sfx.volume = 0.6;
     sfx.play().catch(e => console.log("SFX failed", e));
   };
 
-  const toggleTheme = () => {
-    playSfx('click');
-    setTheme(prev => prev === 'day' ? 'night' : 'day');
-  };
-
-  const toggleMute = () => {
-    setIsMuted(prev => !prev);
-  };
+  const toggleTheme = () => { playSfx('click'); setTheme(prev => prev === 'day' ? 'night' : 'day'); };
+  const toggleMute = () => { setIsMuted(prev => !prev); };
 
   useEffect(() => {
     const newParticles = Array.from({ length: 40 }).map((_, i) => ({
@@ -568,11 +535,9 @@ export default function App() {
   }, []);
 
   const drawCards = () => {
-    // 嘗試播放背景音樂（如果因為瀏覽器策略被阻擋，這裡的互動會解鎖它）
     if (bgmRef.current && bgmRef.current.paused && !isMuted) {
       bgmRef.current.play().catch(e => console.error("Audio play failed:", e));
     }
-    
     playSfx('click');
     setGameState('shuffling');
     if (navigator.vibrate) navigator.vibrate(50);
@@ -587,14 +552,12 @@ export default function App() {
   const toggleFlip = (index) => {
     const isMobile = window.innerWidth < 768;
     if (isMobile && mobileFocusIndex !== index) {
-      playSfx('click'); // 切換焦點也是一種互動
+      playSfx('click');
       setMobileFocusIndex(index);
       return;
     }
-
     if (flippedStates[index]) return;
-    
-    playSfx('cardFlip'); // 翻牌音效
+    playSfx('cardFlip');
     const newFlipped = [...flippedStates];
     newFlipped[index] = true;
     setFlippedStates(newFlipped);
@@ -613,40 +576,26 @@ export default function App() {
     setShowShareModal(false);
   };
 
-  const initiateShare = () => {
-    playSfx('click');
-    setShowShareModal(true);
-  };
+  const initiateShare = () => { playSfx('click'); setShowShareModal(true); };
 
   const executeShare = async (card) => {
     playSfx('click');
     setCardToShare(card);
     setIsSharing(true);
     setShowShareModal(false);
-
     setTimeout(async () => {
       if (!shareRef.current || !window.html2canvas) return;
-      
       try {
         const canvas = await window.html2canvas(shareRef.current, { 
           useCORS: true, 
           backgroundColor: theme === 'night' ? '#1e2029' : '#F5F5F0',
           scale: 3 
         });
-        
         canvas.toBlob(async (blob) => {
           const file = new File([blob], "daily-energy-card.png", { type: "image/png" });
-          
           if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-            try {
-              await navigator.share({
-                files: [file],
-                title: '今日能量卡',
-                text: `這是我今天的宇宙指引：${card.text} ✨`,
-              });
-            } catch (err) {
-              console.log("Share canceled or failed", err);
-            }
+            try { await navigator.share({ files: [file], title: '今日能量卡', text: `這是我今天的宇宙指引：${card.text} ✨` }); } 
+            catch (err) { console.log("Share canceled", err); }
           } else {
             const link = document.createElement('a');
             link.download = `energy-card-${new Date().toISOString().split('T')[0]}.png`;
@@ -656,35 +605,26 @@ export default function App() {
           setIsSharing(false);
           setCardToShare(null);
         }, 'image/png');
-      } catch (error) {
-        console.error("Share failed:", error);
-        setIsSharing(false);
-        setCardToShare(null);
-      }
+      } catch (error) { console.error("Share failed:", error); setIsSharing(false); setCardToShare(null); }
     }, 500);
   };
-
 
   return (
     <div className={`min-h-screen w-full font-sans overflow-hidden flex flex-col items-center justify-center relative transition-colors duration-1000 ${theme === 'night' ? 'bg-[#050510] text-white' : 'bg-[#F0EFEB] text-slate-800'}`}>
       
       <ShareCardView cardSelected={cardToShare} theme={theme} targetRef={shareRef} />
 
-      {/* 分享選擇模態框 */}
+      {/* 分享模態框 */}
       {showShareModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn">
           <div className={`relative w-full max-w-md p-6 rounded-2xl shadow-2xl flex flex-col items-center ${theme === 'night' ? 'bg-[#1e2029] text-white' : 'bg-[#FDFCF5] text-slate-800'}`}>
-            <button onClick={() => setShowShareModal(false)} className="absolute top-4 right-4 opacity-50 hover:opacity-100">
-              <X className="w-5 h-5" />
-            </button>
+            <button onClick={() => setShowShareModal(false)} className="absolute top-4 right-4 opacity-50 hover:opacity-100"><X className="w-5 h-5" /></button>
             <h3 className="text-xl font-serif tracking-wider mb-6">選擇要分享的卡片</h3>
             <div className="flex gap-4 justify-center w-full">
               {drawnCards.map((card, idx) => (
                 <div key={idx} className="flex flex-col items-center gap-3 cursor-pointer group" onClick={() => executeShare(card)}>
                   <div className="transform transition-transform duration-300 group-hover:scale-105 group-hover:-translate-y-2 shadow-lg rounded-xl overflow-hidden">
-                    <div className="w-32 h-48 pointer-events-none">
-                       <Card data={card} isRevealed={true} index={idx} theme={theme} className="w-full h-full" />
-                    </div>
+                    <div className="w-32 h-48 pointer-events-none"><Card data={card} isRevealed={true} index={idx} theme={theme} className="w-full h-full" /></div>
                   </div>
                   <span className="text-xs tracking-widest opacity-60 group-hover:opacity-100">{idx === 0 ? '指引卡' : '能量卡'}</span>
                 </div>
@@ -694,22 +634,18 @@ export default function App() {
         </div>
       )}
 
-      {/* 右下角 Logo (極簡風格) */}
+      {/* Logo */}
       <div className={`fixed bottom-4 right-4 z-40 flex items-center gap-2 transition-opacity duration-300 ${theme === 'night' ? 'text-white/20 hover:text-white/50' : 'text-slate-800/20 hover:text-slate-800/50'}`}>
          <Microscope className="w-4 h-4" />
          <span className="text-[10px] tracking-widest font-serif">Powered by 健康關係實驗室</span>
       </div>
 
-      {/* 動態背景 */}
+      {/* 背景粒子 */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
          {theme === 'night' ? (
            <>
              <div className="absolute inset-0 bg-gradient-to-b from-[#0b0b1a] via-[#101024] to-[#050510]"></div>
-             {particles.map(p => (
-               <div key={p.id} className="absolute rounded-full bg-white animate-pulse"
-                 style={{ top: p.top, left: p.left, width: `${p.size}px`, height: `${p.size}px`, opacity: Math.random() * 0.5 + 0.2, animationDuration: `${p.duration}s` }}
-               ></div>
-             ))}
+             {particles.map(p => (<div key={p.id} className="absolute rounded-full bg-white animate-pulse" style={{ top: p.top, left: p.left, width: `${p.size}px`, height: `${p.size}px`, opacity: Math.random() * 0.5 + 0.2, animationDuration: `${p.duration}s` }}></div>))}
              <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-purple-900/10 rounded-full blur-[120px] mix-blend-screen animate-pulse-slow"></div>
            </>
          ) : (
@@ -718,44 +654,29 @@ export default function App() {
              <div className="absolute inset-0 bg-gradient-to-br from-[#FFFFFF]/80 via-[#F5F5F0]/50 to-[#E6E2D6]/50"></div>
              <div className="absolute top-[-10%] right-[-10%] w-[700px] h-[700px] bg-orange-300/10 rounded-full blur-[120px] animate-pulse-slow"></div>
              <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-rose-300/10 rounded-full blur-[100px] animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
-             {particles.map(p => (
-               <div key={p.id} className="absolute rounded-full bg-amber-400/20 animate-pulse"
-                 style={{ top: p.top, left: p.left, width: `${p.size * 2}px`, height: `${p.size * 2}px`, opacity: Math.random() * 0.3 + 0.1, animationDuration: `${p.duration + 2}s` }}
-               ></div>
-             ))}
+             {particles.map(p => (<div key={p.id} className="absolute rounded-full bg-amber-400/20 animate-pulse" style={{ top: p.top, left: p.left, width: `${p.size * 2}px`, height: `${p.size * 2}px`, opacity: Math.random() * 0.3 + 0.1, animationDuration: `${p.duration + 2}s` }}></div>))}
            </>
          )}
       </div>
 
-      {/* 左上角控制區：聲音 */}
+      {/* 左上角：聲音按鈕 */}
       <div className="absolute top-6 left-6 z-50">
-        <button 
-          onClick={toggleMute}
-          className={`p-3 rounded-full backdrop-blur-md border transition-all duration-500 hover:scale-110 ${theme === 'night' ? 'bg-white/5 border-white/10 text-indigo-200 hover:bg-white/10' : 'bg-[#FFF9F0]/80 border-orange-200/50 text-orange-400 hover:bg-white shadow-sm'}`}
-          title={isMuted ? "Unmute Sound" : "Mute Sound"}
-        >
+        <button onClick={toggleMute} className={`p-3 rounded-full backdrop-blur-md border transition-all duration-500 hover:scale-110 ${theme === 'night' ? 'bg-white/5 border-white/10 text-indigo-200 hover:bg-white/10' : 'bg-[#FFF9F0]/80 border-orange-200/50 text-orange-400 hover:bg-white shadow-sm'}`} title={isMuted ? "Unmute Sound" : "Mute Sound"}>
           {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
         </button>
       </div>
       
-      {/* 右上角控制區：日夜 */}
+      {/* 右上角：日夜切換 */}
       <div className="absolute top-6 right-6 z-50">
-        <button 
-          onClick={toggleTheme}
-          className={`p-3 rounded-full backdrop-blur-md border transition-all duration-500 hover:scale-110 ${theme === 'night' ? 'bg-white/5 border-white/10 text-indigo-200 hover:bg-white/10' : 'bg-[#FFF9F0]/80 border-orange-200/50 text-orange-400 hover:bg-white shadow-sm'}`}
-          title={theme === 'night' ? "Switch to Day Mode" : "Switch to Night Mode"}
-        >
+        <button onClick={toggleTheme} className={`p-3 rounded-full backdrop-blur-md border transition-all duration-500 hover:scale-110 ${theme === 'night' ? 'bg-white/5 border-white/10 text-indigo-200 hover:bg-white/10' : 'bg-[#FFF9F0]/80 border-orange-200/50 text-orange-400 hover:bg-white shadow-sm'}`} title={theme === 'night' ? "Switch to Day Mode" : "Switch to Night Mode"}>
           {theme === 'night' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </button>
       </div>
 
       <div className="z-10 w-full max-w-4xl px-4 flex flex-col items-center">
-        
         <header className="mb-6 md:mb-10 text-center relative">
           <div className={`absolute -inset-8 bg-gradient-to-r blur-xl ${theme === 'night' ? 'from-transparent via-purple-500/10 to-transparent' : 'from-transparent via-orange-300/10 to-transparent'}`}></div>
-          <h1 className={`text-3xl md:text-5xl font-light tracking-[0.3em] text-transparent bg-clip-text font-serif ${theme === 'night' ? 'bg-gradient-to-r from-indigo-100 via-white to-purple-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]' : 'bg-gradient-to-r from-slate-600 via-slate-800 to-slate-600 drop-shadow-sm'}`}>
-            今日能量卡
-          </h1>
+          <h1 className={`text-3xl md:text-5xl font-light tracking-[0.3em] text-transparent bg-clip-text font-serif ${theme === 'night' ? 'bg-gradient-to-r from-indigo-100 via-white to-purple-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]' : 'bg-gradient-to-r from-slate-600 via-slate-800 to-slate-600 drop-shadow-sm'}`}>今日能量卡</h1>
           <div className="flex items-center justify-center gap-2 mt-4 opacity-50">
              <div className={`h-[1px] w-12 bg-gradient-to-r ${theme === 'night' ? 'from-transparent to-white' : 'from-transparent to-slate-400'}`}></div>
              <p className={`text-[10px] md:text-xs tracking-[0.4em] font-light uppercase ${theme === 'night' ? 'text-indigo-200' : 'text-slate-500'}`}>Daily Energy Oracle</p>
@@ -779,9 +700,7 @@ export default function App() {
                  </div>
               </div>
             </div>
-            <p className={`mt-12 text-center max-w-md leading-loose font-serif text-sm tracking-wide ${theme === 'night' ? 'text-indigo-200/40' : 'text-slate-500/60'}`}>
-              {theme === 'night' ? "萬物皆有頻率，讓宇宙的指引流向你。" : "新的一天，深呼吸，接收今日的祝福與光。"}
-            </p>
+            <p className={`mt-12 text-center max-w-md leading-loose font-serif text-sm tracking-wide ${theme === 'night' ? 'text-indigo-200/40' : 'text-slate-500/60'}`}>{theme === 'night' ? "萬物皆有頻率，讓宇宙的指引流向你。" : "新的一天，深呼吸，接收今日的祝福與光。"}</p>
           </div>
         )}
 
@@ -790,9 +709,7 @@ export default function App() {
             <div className="relative">
               <div className={`w-24 h-24 border-[1px] rounded-full animate-ping absolute ${theme === 'night' ? 'border-indigo-500/30' : 'border-orange-400/20'}`}></div>
               <div className={`w-24 h-24 border-t-[1px] rounded-full animate-spin ${theme === 'night' ? 'border-indigo-300' : 'border-orange-400'}`}></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                 <Sparkles className={`w-6 h-6 animate-pulse ${theme === 'night' ? 'text-indigo-200' : 'text-orange-400'}`} />
-              </div>
+              <div className="absolute inset-0 flex items-center justify-center"><Sparkles className={`w-6 h-6 animate-pulse ${theme === 'night' ? 'text-indigo-200' : 'text-orange-400'}`} /></div>
             </div>
             <p className={`mt-10 text-lg font-light tracking-widest animate-pulse font-serif ${theme === 'night' ? 'text-indigo-100' : 'text-slate-600'}`}>Connecting...</p>
           </div>
@@ -800,70 +717,34 @@ export default function App() {
 
         {(gameState === 'drawing' || gameState === 'result') && (
           <div className="w-full flex flex-col items-center">
-            
             <div className="relative w-full h-[450px] md:h-auto flex justify-center items-center perspective-1000 mb-10">
-              
               {drawnCards.map((card, idx) => {
                 const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
                 const isFocused = mobileFocusIndex === idx;
-                
-                // 判斷是否應該發光 (只在手機版、只翻開一張時、且這張牌是沒翻開的那張)
                 const shouldGlow = isMobile && flippedStates.filter(Boolean).length === 1 && !flippedStates[idx];
-
-                let cardStyleClass = "transition-all duration-500 ease-out shadow-2xl";
-                let containerStyle = {};
                 
-                // 新增發光樣式: 強烈白色光暈，急促閃爍，貼合卡片圓角，移除透明度
-                // 修改這裡：日間模式使用橙色光暈，夜間模式維持白色
-                const glowColorClass = theme === 'day' ? 'ring-orange-400 shadow-[0_0_60px_rgba(251,146,60,0.8)]' : 'ring-white shadow-[0_0_80px_rgba(255,255,255,1)]';
+                // 自然呼吸光暈 (Box-shadow 擴散效果)
                 const glowClass = shouldGlow 
                   ? (theme === 'day' 
-                      ? `animate-flash-glow-day ring-4 ${glowColorClass} rounded-xl relative z-50` 
-                      : `animate-flash-glow-night ring-4 ${glowColorClass} rounded-xl relative z-50`)
+                      ? "animate-breathe-day rounded-xl relative z-50" 
+                      : "animate-breathe-night rounded-xl relative z-50")
                   : "";
 
+                let containerStyle = {};
                 if (isMobile) {
-                  cardStyleClass += " absolute";
                   if (isFocused) {
-                    // 翻開的卡片往上移 (top: 45%)
-                    containerStyle = { 
-                      zIndex: 50, 
-                      transform: 'translate(-50%, -50%) scale(1.05) rotate(0deg)',
-                      top: '45%', left: '50%'
-                    };
+                    containerStyle = { zIndex: 50, transform: 'translate(-50%, -50%) scale(1.05) rotate(0deg)', top: '45%', left: '50%' };
                   } else {
-                    // 未翻開的卡片往下移 (top: 55%)，且保持不透明度 100%
-                    containerStyle = { 
-                      zIndex: shouldGlow ? 40 : 10, 
-                      transform: `translate(${idx === 0 ? '-65%' : '-35%'}, -48%) scale(0.95) rotate(${idx === 0 ? '-5deg' : '5deg'})`, // 減少旋轉角度讓它看起來更像"在下方"
-                      top: '55%', left: '50%',
-                      // 關鍵：移除 opacity 和 filter，保持卡片原色
-                    };
+                    containerStyle = { zIndex: shouldGlow ? 40 : 10, transform: `translate(${idx === 0 ? '-65%' : '-35%'}, -48%) scale(0.95) rotate(${idx === 0 ? '-5deg' : '5deg'})`, top: '55%', left: '50%' };
                   }
                 } else {
                   containerStyle = { margin: '0 20px' }; 
                 }
 
                 return (
-                  <div 
-                    key={idx} 
-                    className={`${isMobile ? 'absolute' : 'relative'} flex flex-col items-center gap-6 transition-all duration-500`}
-                    style={containerStyle}
-                    onClick={() => isMobile && toggleFlip(idx)}
-                  >
-                    <span className={`text-[10px] tracking-[0.3em] uppercase transition-all duration-1000 ${flippedStates[idx] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'} ${theme === 'night' ? 'text-indigo-300/40' : 'text-slate-400/60'}`}>
-                      {idx === 0 ? 'Guidance · 指引' : 'Energy · 能量'}
-                    </span>
-                    
-                    <Card 
-                      index={idx} 
-                      data={card} 
-                      isRevealed={flippedStates[idx]} 
-                      onClick={() => toggleFlip(idx)} 
-                      theme={theme} 
-                      isMobileFocused={isFocused}
-                      className={glowClass} // 傳入發光樣式
-                    />
+                  <div key={idx} className={`${isMobile ? 'absolute' : 'relative'} flex flex-col items-center gap-6 transition-all duration-500`} style={containerStyle} onClick={() => isMobile && toggleFlip(idx)}>
+                    <span className={`text-[10px] tracking-[0.3em] uppercase transition-all duration-1000 ${flippedStates[idx] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'} ${theme === 'night' ? 'text-indigo-300/40' : 'text-slate-400/60'}`}>{idx === 0 ? 'Guidance · 指引' : 'Energy · 能量'}</span>
+                    <Card index={idx} data={card} isRevealed={flippedStates[idx]} onClick={() => toggleFlip(idx)} theme={theme} isMobileFocused={isFocused} className={glowClass} />
                   </div>
                 );
               })}
@@ -879,28 +760,18 @@ export default function App() {
                       <span className={`tracking-[0.2em] text-xs ${theme === 'night' ? 'text-indigo-200' : 'text-slate-600'}`}>RESTART</span>
                     </div>
                   </button>
-
                   <button onClick={initiateShare} disabled={isSharing} className={`group relative px-6 py-2 overflow-hidden rounded-full bg-transparent border transition-all duration-300 ${theme === 'night' ? 'border-indigo-500/50 hover:border-indigo-400 bg-indigo-900/20' : 'border-orange-300 hover:border-orange-400 bg-orange-50'}`}>
                     <div className="relative flex items-center gap-2">
-                      {isSharing ? (
-                        <span className="animate-spin"><RefreshCw className="w-3 h-3" /></span>
-                      ) : (
-                        <InstagramShareIcon className={`w-3 h-3 ${theme === 'night' ? 'text-indigo-300' : 'text-orange-500'}`} />
-                      )}
-                      <span className={`tracking-[0.2em] text-xs ${theme === 'night' ? 'text-indigo-200' : 'text-orange-600'}`}>
-                        {isSharing ? 'SAVING...' : 'SHARE'}
-                      </span>
+                      {isSharing ? <span className="animate-spin"><RefreshCw className="w-3 h-3" /></span> : <InstagramShareIcon className={`w-3 h-3 ${theme === 'night' ? 'text-indigo-300' : 'text-orange-500'}`} />}
+                      <span className={`tracking-[0.2em] text-xs ${theme === 'night' ? 'text-indigo-200' : 'text-orange-600'}`}>{isSharing ? 'SAVING...' : 'SHARE'}</span>
                     </div>
                   </button>
                 </div>
               </div>
             )}
             
-            {/* 優化提示位置：mb-20 讓文字在手機上浮得更高 */}
             {gameState === 'drawing' && !flippedStates.every(Boolean) && (
-               <p className={`mt-8 mb-20 md:mb-8 animate-pulse tracking-[0.2em] text-xs font-light ${theme === 'night' ? 'text-indigo-200/30' : 'text-slate-400'}`}>
-                 {typeof window !== 'undefined' && window.innerWidth < 768 ? "點擊卡牌切換與翻開" : "點擊卡牌翻開訊息"}
-               </p>
+               <p className={`mt-8 mb-20 md:mb-8 animate-pulse tracking-[0.2em] text-xs font-light ${theme === 'night' ? 'text-indigo-200/30' : 'text-slate-400'}`}>{typeof window !== 'undefined' && window.innerWidth < 768 ? "點擊卡牌切換與翻開" : "點擊卡牌翻開訊息"}</p>
             )}
           </div>
         )}
@@ -916,23 +787,19 @@ export default function App() {
         .animate-pulse-slow { animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
         .animate-spin-slow { animation: spin 12s linear infinite; }
         
-        /* 自定義急促閃爍動畫 - 日間模式 (Orange) */
-        @keyframes flashGlowDay {
-          0%, 100% { opacity: 1; box-shadow: 0 0 20px rgba(249,115,22,0.6); transform: scale(1); }
-          50% { opacity: 1; box-shadow: 0 0 60px rgba(249,115,22,0.9); transform: scale(1.02); }
+        /* 自然呼吸光暈 - 日間 (Amber/Orange Glow) */
+        @keyframes breatheDay {
+          0%, 100% { box-shadow: 0 0 25px 5px rgba(251, 146, 60, 0.4); transform: scale(1); }
+          50% { box-shadow: 0 0 60px 20px rgba(251, 146, 60, 0.8); transform: scale(1.02); }
         }
-        .animate-flash-glow-day {
-          animation: flashGlowDay 1.2s infinite;
-        }
+        .animate-breathe-day { animation: breatheDay 3s ease-in-out infinite; }
 
-        /* 自定義急促閃爍動畫 - 夜間模式 (White) */
-        @keyframes flashGlowWhite {
-          0%, 100% { opacity: 1; box-shadow: 0 0 20px rgba(255,255,255,0.5); transform: scale(1); }
-          50% { opacity: 1; box-shadow: 0 0 60px rgba(255,255,255,1); transform: scale(1.02); }
+        /* 自然呼吸光暈 - 夜間 (Moonlight White Glow) */
+        @keyframes breatheNight {
+          0%, 100% { box-shadow: 0 0 25px 5px rgba(255, 255, 255, 0.2); transform: scale(1); }
+          50% { box-shadow: 0 0 60px 20px rgba(255, 255, 255, 0.6); transform: scale(1.02); }
         }
-        .animate-flash-glow-night {
-          animation: flashGlowWhite 1.5s infinite;
-        }
+        .animate-breathe-night { animation: breatheNight 3s ease-in-out infinite; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
