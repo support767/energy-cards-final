@@ -284,56 +284,62 @@ const QUOTES_DB = [
 
 // --- 4. 組件 ---
 
-const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, className = "", autoHeight = false }) => {
+// 新增 captureMode 屬性，用於強制顯示正面，解決 html2canvas 3D 旋轉截圖問題
+const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, className = "", autoHeight = false, captureMode = false }) => {
   const chakraInfo = CHAKRAS.find(c => c.id === data.type);
   if (!chakraInfo) return null;
   
-  // 根據 autoHeight 決定高度樣式：如果是分享模式(autoHeight=true)，則高度自動(h-auto)且最小高度為96；否則固定高度 h-96
+  // 根據 autoHeight 決定高度樣式
   const heightClass = autoHeight ? "h-auto min-h-96" : "h-96";
   const innerHeightClass = autoHeight ? "h-auto min-h-full" : "h-full";
   
   return (
     <div 
-      className={`relative w-64 ${heightClass} cursor-pointer perspective-1000 transition-transform duration-700 ${className} ${isRevealed && !isMobileFocused ? '' : 'hover:scale-105'}`}
+      // 如果是 captureMode，移除 perspective，避免 3D 變形干擾截圖
+      className={`relative w-64 ${heightClass} cursor-pointer ${!captureMode ? 'perspective-1000' : ''} transition-transform duration-700 ${className} ${isRevealed && !isMobileFocused ? '' : 'hover:scale-105'}`}
       onClick={onClick}
       style={{ transitionDelay: `${index * 150}ms` }}
     >
-      <div className={`relative w-full ${innerHeightClass} duration-1000 preserve-3d transition-all ${isRevealed ? 'rotate-y-180' : ''}`}>
+      <div className={`relative w-full ${innerHeightClass} ${!captureMode ? 'duration-1000 preserve-3d' : ''} transition-all ${(isRevealed && !captureMode) ? 'rotate-y-180' : ''}`}>
         
         {/* --- 卡牌背面 --- */}
-        {theme === 'night' ? (
-          <div className={`absolute w-full h-full backface-hidden rounded-xl shadow-2xl overflow-hidden bg-slate-900 border border-white/10 ${autoHeight ? 'min-h-[24rem]' : ''}`}>
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/40 via-slate-900 to-black"></div>
-            <div className="absolute inset-4 border border-white/10 rounded-lg flex items-center justify-center">
-              <div className="w-48 h-48 rounded-full border border-white/5 flex items-center justify-center animate-pulse-slow">
-                 <div className="w-1 h-24 bg-gradient-to-b from-transparent via-white/20 to-transparent"></div>
-                 <div className="absolute w-24 h-1 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+        {/* 在截圖模式下 (captureMode=true)，直接不渲染背面，確保只看到正面 */}
+        {!captureMode && (
+          theme === 'night' ? (
+            <div className={`absolute w-full h-full backface-hidden rounded-xl shadow-2xl overflow-hidden bg-slate-900 border border-white/10 ${autoHeight ? 'min-h-[24rem]' : ''}`}>
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/40 via-slate-900 to-black"></div>
+              <div className="absolute inset-4 border border-white/10 rounded-lg flex items-center justify-center">
+                <div className="w-48 h-48 rounded-full border border-white/5 flex items-center justify-center animate-pulse-slow">
+                  <div className="w-1 h-24 bg-gradient-to-b from-transparent via-white/20 to-transparent"></div>
+                  <div className="absolute w-24 h-1 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+                </div>
+                <div className="absolute">
+                  <Sparkles className="text-white/40 w-6 h-6 animate-spin-slow" />
+                </div>
               </div>
-              <div className="absolute">
-                 <Sparkles className="text-white/40 w-6 h-6 animate-spin-slow" />
-              </div>
+              <p className="absolute bottom-6 w-full text-center text-white/30 text-[10px] tracking-[0.4em] font-light uppercase">Universe</p>
             </div>
-            <p className="absolute bottom-6 w-full text-center text-white/30 text-[10px] tracking-[0.4em] font-light uppercase">Universe</p>
-          </div>
-        ) : (
-          <div className={`absolute w-full h-full backface-hidden rounded-xl shadow-[0_15px_40px_rgba(0,0,0,0.15)] overflow-hidden bg-white border border-stone-300 ${autoHeight ? 'min-h-[24rem]' : ''}`}>
-            <div className="absolute inset-0 bg-gradient-to-br from-white via-orange-50/30 to-orange-50/10"></div>
-            <div className="absolute inset-0 opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-            <div className="absolute inset-4 border border-stone-300/60 rounded-lg flex items-center justify-center">
-              <div className="w-48 h-48 rounded-full border border-stone-300/60 flex items-center justify-center animate-pulse-slow">
-                 <div className="w-1 h-24 bg-gradient-to-b from-transparent via-orange-200/30 to-transparent"></div>
-                 <div className="absolute w-24 h-1 bg-gradient-to-r from-transparent via-orange-200/30 to-transparent"></div>
+          ) : (
+            <div className={`absolute w-full h-full backface-hidden rounded-xl shadow-[0_15px_40px_rgba(0,0,0,0.15)] overflow-hidden bg-white border border-stone-300 ${autoHeight ? 'min-h-[24rem]' : ''}`}>
+              <div className="absolute inset-0 bg-gradient-to-br from-white via-orange-50/30 to-orange-50/10"></div>
+              <div className="absolute inset-0 opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+              <div className="absolute inset-4 border border-stone-300/60 rounded-lg flex items-center justify-center">
+                <div className="w-48 h-48 rounded-full border border-stone-300/60 flex items-center justify-center animate-pulse-slow">
+                  <div className="w-1 h-24 bg-gradient-to-b from-transparent via-orange-200/30 to-transparent"></div>
+                  <div className="absolute w-24 h-1 bg-gradient-to-r from-transparent via-orange-200/30 to-transparent"></div>
+                </div>
+                <div className="absolute">
+                  <Sun className="text-orange-400/50 w-6 h-6 animate-spin-slow" />
+                </div>
               </div>
-              <div className="absolute">
-                 <Sun className="text-orange-400/50 w-6 h-6 animate-spin-slow" />
-              </div>
+              <p className="absolute bottom-6 w-full text-center text-stone-400 text-[10px] tracking-[0.4em] font-light uppercase">Awakening</p>
             </div>
-            <p className="absolute bottom-6 w-full text-center text-stone-400 text-[10px] tracking-[0.4em] font-light uppercase">Awakening</p>
-          </div>
+          )
         )}
 
         {/* --- 卡牌正面 --- */}
-        <div className={`absolute w-full h-full backface-hidden rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.1)] rotate-y-180 overflow-hidden flex flex-col items-center text-center p-1 ${theme === 'night' ? 'bg-[#FDFCF8] shadow-black/50' : 'bg-white border border-stone-300 shadow-xl shadow-stone-300/50'}`}>
+        {/* 在截圖模式下，移除 rotate-y-180，確保它是正面朝上的靜態 div */}
+        <div className={`absolute w-full h-full backface-hidden rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.1)] ${!captureMode ? 'rotate-y-180' : ''} overflow-hidden flex flex-col items-center text-center p-1 ${theme === 'night' ? 'bg-[#FDFCF8] shadow-black/50' : 'bg-white border border-stone-300 shadow-xl shadow-stone-300/50'}`}>
           <div className={`w-full h-full border-2 ${chakraInfo.color} rounded-lg flex flex-col relative overflow-hidden`}>
              <div className={`absolute top-0 left-0 right-0 h-32 opacity-5 bg-gradient-to-b from-${chakraInfo.color.split('-')[1]}-400 to-transparent`}></div>
              <div className="flex-1 flex flex-col items-center p-5 pt-8 relative z-10">
@@ -348,7 +354,7 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
                    {data.type === 'crown' && <Sparkles strokeWidth={1.5} className="w-6 h-6" />}
                 </div>
                 
-                {/* 關鍵修正：如果是分享模式(autoHeight)，取消 overflow-y-auto，改為 h-auto，讓文字撐開卡片 */}
+                {/* autoHeight 時取消 scrollbar，改為自動長高 */}
                 <div className={`flex-1 w-full flex flex-col items-center justify-center my-2 ${autoHeight ? 'h-auto' : 'overflow-y-auto no-scrollbar'}`}>
                   <h3 className={`text-base font-medium mb-2 leading-relaxed tracking-wide ${theme === 'day' ? chakraInfo.dayTextColor || chakraInfo.textColor : chakraInfo.textColor} font-serif text-center`}>{data.text}</h3>
                   <p className="text-[10px] font-serif italic text-slate-500/80 leading-relaxed font-light text-center px-2">{data.en}</p>
@@ -376,7 +382,7 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
   );
 };
 
-// --- 隱藏的分享卡片生成區 (傳入 autoHeight={true}) ---
+// --- 隱藏的分享卡片生成區 (傳入 autoHeight={true} 和 captureMode={true}) ---
 const ShareCardView = ({ cardSelected, theme, targetRef }) => {
   if (!cardSelected) return null;
 
@@ -387,8 +393,8 @@ const ShareCardView = ({ cardSelected, theme, targetRef }) => {
         <p className="text-[10px] tracking-[0.4em] opacity-60 uppercase">Daily Energy Oracle</p>
         <div className="mt-1 text-[10px] opacity-40">{new Date().toLocaleDateString()}</div>
       </div>
-      {/* 關鍵修正：加入 autoHeight={true}，讓截圖時卡片可以隨文字長度延伸 */}
-      <Card data={cardSelected} isRevealed={true} index={0} theme={theme} autoHeight={true} />
+      {/* 關鍵修正：加入 captureMode={true}，強制顯示正面，避免 3D 翻轉錯誤 */}
+      <Card data={cardSelected} isRevealed={true} index={0} theme={theme} autoHeight={true} captureMode={true} />
       <div className="mt-2 text-[8px] tracking-[0.5em] opacity-40 uppercase">Connect With The Universe</div>
     </div>
   );
