@@ -1,0 +1,79 @@
+.App {
+  font-family: sans-serif;
+  text-align: center;
+}
+.perspective-1000 {
+  perspective: 1000px;
+}
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+.backface-hidden {
+  backface-visibility: hidden;
+}
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+.animate-fadeIn {
+  animation: fadeIn 1.5s ease-out forwards;
+}
+.animate-fadeInUp {
+  animation: fadeInUp 1s ease-out forwards;
+}
+.animate-pulse-slow {
+  animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+.animate-spin-slow {
+  animation: spin 12s linear infinite;
+}
+
+/* 自然呼吸光暈 - 日間 (Amber Glow) */
+@keyframes breatheDay {
+  0%,
+  100% {
+    box-shadow: 0 0 20px 5px rgba(251, 146, 60, 0.3);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 50px 15px rgba(251, 146, 60, 0.6);
+    transform: scale(1.02);
+  }
+}
+.animate-breathe-day {
+  animation: breatheDay 3s ease-in-out infinite;
+}
+
+/* 自然呼吸光暈 - 夜間 (Moonlight Glow) */
+@keyframes breatheNight {
+  0%,
+  100% {
+    box-shadow: 0 0 20px 5px rgba(255, 255, 255, 0.2);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 60px 20px rgba(255, 255, 255, 0.5);
+    transform: scale(1.02);
+  }
+}
+.animate-breathe-night {
+  animation: breatheNight 3s ease-in-out infinite;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
