@@ -423,9 +423,7 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
                 </div>
                 <h3 className={`text-base font-medium mb-3 leading-relaxed tracking-wide ${theme === 'day' ? chakraInfo.dayTextColor || chakraInfo.textColor : chakraInfo.textColor} font-serif min-h-[4.5rem] flex items-center justify-center`}>{data.text}</h3>
                 <p className="text-[10px] font-serif italic text-slate-500/80 leading-relaxed font-light mb-6 px-2">{data.en}</p>
-                
-                {/* 排版優化：mb-12 增加底部呼吸空間，讓文字往上浮 */}
-                <div className="mt-auto w-full mb-12"> 
+                <div className="mt-auto w-full mb-12 pb-6"> 
                   <div className="flex items-center justify-center gap-2 mb-2 opacity-20">
                      <div className={`h-[1px] flex-1 ${chakraInfo.color.replace('border', 'bg')}`}></div>
                      <Feather className="w-3 h-3 text-slate-400" />
@@ -447,7 +445,7 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
   );
 };
 
-// --- 隱藏的分享卡片 ---
+// --- 隱藏的分享卡片生成區 ---
 const ShareCardView = ({ cardSelected, theme, targetRef }) => {
   if (!cardSelected) return null;
   return (
@@ -578,11 +576,13 @@ export default function App() {
 
   const initiateShare = () => { playSfx('click'); setShowShareModal(true); };
 
+  // === 關鍵修正區：分享功能 ===
   const executeShare = async (card) => {
     playSfx('click');
     setCardToShare(card);
     setIsSharing(true);
     setShowShareModal(false);
+    
     setTimeout(async () => {
       if (!shareRef.current || !window.html2canvas) return;
       try {
@@ -593,10 +593,20 @@ export default function App() {
         });
         canvas.toBlob(async (blob) => {
           const file = new File([blob], "daily-energy-card.png", { type: "image/png" });
-          if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-            try { await navigator.share({ files: [file], title: '今日能量卡', text: `這是我今天的宇宙指引：${card.text} ✨` }); } 
-            catch (err) { console.log("Share canceled", err); }
+          
+          // 判斷是否支援原生的分享功能 (例如在 Safari 或 Chrome App)
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({
+                files: [file],
+                title: '今日能量卡',
+                text: `這是我今天的宇宙指引：${card.text} ✨`,
+              });
+            } catch (err) {
+              console.log("Share canceled", err);
+            }
           } else {
+            // 如果不支援 (例如 IG 內建瀏覽器)，則降級為下載圖片
             const link = document.createElement('a');
             link.download = `energy-card-${new Date().toISOString().split('T')[0]}.png`;
             link.href = canvas.toDataURL();
@@ -614,7 +624,6 @@ export default function App() {
       
       <ShareCardView cardSelected={cardToShare} theme={theme} targetRef={shareRef} />
 
-      {/* 分享模態框 */}
       {showShareModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn">
           <div className={`relative w-full max-w-md p-6 rounded-2xl shadow-2xl flex flex-col items-center ${theme === 'night' ? 'bg-[#1e2029] text-white' : 'bg-[#FDFCF5] text-slate-800'}`}>
@@ -634,13 +643,11 @@ export default function App() {
         </div>
       )}
 
-      {/* Logo */}
       <div className={`fixed bottom-4 right-4 z-40 flex items-center gap-2 transition-opacity duration-300 ${theme === 'night' ? 'text-white/20 hover:text-white/50' : 'text-slate-800/20 hover:text-slate-800/50'}`}>
          <Microscope className="w-4 h-4" />
          <span className="text-[10px] tracking-widest font-serif">Powered by 健康關係實驗室</span>
       </div>
 
-      {/* 背景粒子 */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
          {theme === 'night' ? (
            <>
@@ -659,14 +666,12 @@ export default function App() {
          )}
       </div>
 
-      {/* 左上角：聲音按鈕 */}
       <div className="absolute top-6 left-6 z-50">
         <button onClick={toggleMute} className={`p-3 rounded-full backdrop-blur-md border transition-all duration-500 hover:scale-110 ${theme === 'night' ? 'bg-white/5 border-white/10 text-indigo-200 hover:bg-white/10' : 'bg-[#FFF9F0]/80 border-orange-200/50 text-orange-400 hover:bg-white shadow-sm'}`} title={isMuted ? "Unmute Sound" : "Mute Sound"}>
           {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
         </button>
       </div>
       
-      {/* 右上角：日夜切換 */}
       <div className="absolute top-6 right-6 z-50">
         <button onClick={toggleTheme} className={`p-3 rounded-full backdrop-blur-md border transition-all duration-500 hover:scale-110 ${theme === 'night' ? 'bg-white/5 border-white/10 text-indigo-200 hover:bg-white/10' : 'bg-[#FFF9F0]/80 border-orange-200/50 text-orange-400 hover:bg-white shadow-sm'}`} title={theme === 'night' ? "Switch to Day Mode" : "Switch to Night Mode"}>
           {theme === 'night' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -723,11 +728,10 @@ export default function App() {
                 const isFocused = mobileFocusIndex === idx;
                 const shouldGlow = isMobile && flippedStates.filter(Boolean).length === 1 && !flippedStates[idx];
                 
-                // 自然呼吸光暈 (Box-shadow 擴散效果)
                 const glowClass = shouldGlow 
                   ? (theme === 'day' 
-                      ? "animate-breathe-day rounded-xl relative z-50" 
-                      : "animate-breathe-night rounded-xl relative z-50")
+                      ? "animate-flash-glow-day ring-4 ring-orange-500 shadow-[0_0_80px_rgba(249,115,22,0.9)] rounded-xl relative z-50" 
+                      : "animate-flash-glow-night ring-4 ring-white shadow-[0_0_80px_rgba(255,255,255,1)] rounded-xl relative z-50")
                   : "";
 
                 let containerStyle = {};
@@ -787,19 +791,23 @@ export default function App() {
         .animate-pulse-slow { animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
         .animate-spin-slow { animation: spin 12s linear infinite; }
         
-        /* 自然呼吸光暈 - 日間 (Amber/Orange Glow) */
-        @keyframes breatheDay {
-          0%, 100% { box-shadow: 0 0 25px 5px rgba(251, 146, 60, 0.4); transform: scale(1); }
-          50% { box-shadow: 0 0 60px 20px rgba(251, 146, 60, 0.8); transform: scale(1.02); }
+        /* 自定義急促閃爍動畫 - 日間模式 (Orange) */
+        @keyframes flashGlowDay {
+          0%, 100% { opacity: 1; box-shadow: 0 0 20px rgba(249,115,22,0.6); transform: scale(1); }
+          50% { opacity: 1; box-shadow: 0 0 60px rgba(249,115,22,0.9); transform: scale(1.02); }
         }
-        .animate-breathe-day { animation: breatheDay 3s ease-in-out infinite; }
+        .animate-flash-glow-day {
+          animation: flashGlowDay 1.2s infinite;
+        }
 
-        /* 自然呼吸光暈 - 夜間 (Moonlight White Glow) */
-        @keyframes breatheNight {
-          0%, 100% { box-shadow: 0 0 25px 5px rgba(255, 255, 255, 0.2); transform: scale(1); }
-          50% { box-shadow: 0 0 60px 20px rgba(255, 255, 255, 0.6); transform: scale(1.02); }
+        /* 自定義急促閃爍動畫 - 夜間模式 (White) */
+        @keyframes flashGlowWhite {
+          0%, 100% { opacity: 1; box-shadow: 0 0 20px rgba(255,255,255,0.5); transform: scale(1); }
+          50% { opacity: 1; box-shadow: 0 0 60px rgba(255,255,255,1); transform: scale(1.02); }
         }
-        .animate-breathe-night { animation: breatheNight 3s ease-in-out infinite; }
+        .animate-flash-glow-night {
+          animation: flashGlowWhite 1.5s infinite;
+        }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
