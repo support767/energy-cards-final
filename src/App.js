@@ -17,93 +17,15 @@ const InstagramShareIcon = ({ className }) => (
   </svg>
 );
 
-// --- 3. 數據庫與配置 (完整 245 句) ---
-
+// --- 3. 數據庫與配置 ---
 const CHAKRAS = [
-  { 
-    id: 'root', 
-    name: '海底輪 · Root Chakra', 
-    color: 'border-red-400', 
-    textColor: 'text-red-900', 
-    dayTextColor: 'text-red-900',
-    subColor: 'text-red-600/60',
-    shadow: 'shadow-red-900/10', 
-    iconColor: 'text-red-500', 
-    keywords: '生存 · 安全 · 穩定',
-    guidance: '對應脊椎根部，代表生存本能、安全感與大地的連結。'
-  },
-  { 
-    id: 'sacral', 
-    name: '生殖輪 · Sacral Chakra', 
-    color: 'border-orange-400', 
-    textColor: 'text-orange-900', 
-    dayTextColor: 'text-orange-900',
-    subColor: 'text-orange-600/60',
-    shadow: 'shadow-orange-900/10', 
-    iconColor: 'text-orange-500', 
-    keywords: '情緒 · 創造 · 喜悅',
-    guidance: '對應下腹部，代表情緒流動、感官享受與創造力的泉源。'
-  },
-  { 
-    id: 'solar', 
-    name: '太陽神經叢 · Solar Plexus', 
-    color: 'border-yellow-500', 
-    textColor: 'text-yellow-900', 
-    dayTextColor: 'text-yellow-800',
-    subColor: 'text-yellow-700/60',
-    shadow: 'shadow-yellow-900/10', 
-    iconColor: 'text-yellow-600', 
-    keywords: '自信 · 意志 · 行動',
-    guidance: '對應胃部，代表意志力、自信與個人力量的主導權。'
-  },
-  { 
-    id: 'heart', 
-    name: '心輪 · Heart Chakra', 
-    color: 'border-green-500', 
-    textColor: 'text-green-900', 
-    dayTextColor: 'text-green-900',
-    subColor: 'text-green-700/60',
-    shadow: 'shadow-green-900/10', 
-    iconColor: 'text-green-600', 
-    keywords: '愛 · 寬恕 · 接納',
-    guidance: '對應心臟與胸腔，代表無條件的愛、接納與慈悲的流動。'
-  },
-  { 
-    id: 'throat', 
-    name: '喉輪 · Throat Chakra', 
-    color: 'border-blue-400', 
-    textColor: 'text-blue-900', 
-    dayTextColor: 'text-blue-900',
-    subColor: 'text-blue-700/60',
-    shadow: 'shadow-blue-900/10', 
-    iconColor: 'text-blue-500', 
-    keywords: '溝通 · 真實 · 表達',
-    guidance: '對應喉嚨，代表真實的溝通、自我表達與內在誠信。'
-  },
-  { 
-    id: 'thirdEye', 
-    name: '眉心輪 · Third Eye', 
-    color: 'border-indigo-400', 
-    textColor: 'text-indigo-900', 
-    dayTextColor: 'text-indigo-900',
-    subColor: 'text-indigo-700/60',
-    shadow: 'shadow-indigo-900/10', 
-    iconColor: 'text-indigo-600', 
-    keywords: '直覺 · 洞見 · 想像',
-    guidance: '對應眉心，代表直覺力、洞察力與超越表象的智慧。'
-  },
-  { 
-    id: 'crown', 
-    name: '頂輪 · Crown Chakra', 
-    color: 'border-violet-400', 
-    textColor: 'text-violet-900', 
-    dayTextColor: 'text-violet-900',
-    subColor: 'text-violet-700/60',
-    shadow: 'shadow-violet-900/10', 
-    iconColor: 'text-violet-600', 
-    keywords: '靈性 · 合一 · 智慧',
-    guidance: '對應頭頂，代表靈性連結、合一意識與更高的悟性。'
-  },
+  { id: 'root', name: '海底輪 · Root Chakra', color: 'border-red-400', textColor: 'text-red-900', dayTextColor: 'text-red-900', subColor: 'text-red-600/60', shadow: 'shadow-red-900/10', iconColor: 'text-red-500', keywords: '生存 · 安全 · 穩定', guidance: '對應脊椎根部，代表生存本能、安全感與大地的連結。' },
+  { id: 'sacral', name: '生殖輪 · Sacral Chakra', color: 'border-orange-400', textColor: 'text-orange-900', dayTextColor: 'text-orange-900', subColor: 'text-orange-600/60', shadow: 'shadow-orange-900/10', iconColor: 'text-orange-500', keywords: '情緒 · 創造 · 喜悅', guidance: '對應下腹部，代表情緒流動、感官享受與創造力的泉源。' },
+  { id: 'solar', name: '太陽神經叢 · Solar Plexus', color: 'border-yellow-500', textColor: 'text-yellow-900', dayTextColor: 'text-yellow-800', subColor: 'text-yellow-700/60', shadow: 'shadow-yellow-900/10', iconColor: 'text-yellow-600', keywords: '自信 · 意志 · 行動', guidance: '對應胃部，代表意志力、自信與個人力量的主導權。' },
+  { id: 'heart', name: '心輪 · Heart Chakra', color: 'border-green-500', textColor: 'text-green-900', dayTextColor: 'text-green-900', subColor: 'text-green-700/60', shadow: 'shadow-green-900/10', iconColor: 'text-green-600', keywords: '愛 · 寬恕 · 接納', guidance: '對應心臟與胸腔，代表無條件的愛、接納與慈悲的流動。' },
+  { id: 'throat', name: '喉輪 · Throat Chakra', color: 'border-blue-400', textColor: 'text-blue-900', dayTextColor: 'text-blue-900', subColor: 'text-blue-700/60', shadow: 'shadow-blue-900/10', iconColor: 'text-blue-500', keywords: '溝通 · 真實 · 表達', guidance: '對應喉嚨，代表真實的溝通、自我表達與內在誠信。' },
+  { id: 'thirdEye', name: '眉心輪 · Third Eye', color: 'border-indigo-400', textColor: 'text-indigo-900', dayTextColor: 'text-indigo-900', subColor: 'text-indigo-700/60', shadow: 'shadow-indigo-900/10', iconColor: 'text-indigo-600', keywords: '直覺 · 洞見 · 想像', guidance: '對應眉心，代表直覺力、洞察力與超越表象的智慧。' },
+  { id: 'crown', name: '頂輪 · Crown Chakra', color: 'border-violet-400', textColor: 'text-violet-900', dayTextColor: 'text-violet-900', subColor: 'text-violet-700/60', shadow: 'shadow-violet-900/10', iconColor: 'text-violet-600', keywords: '靈性 · 合一 · 智慧', guidance: '對應頭頂，代表靈性連結、合一意識與更高的悟性。' },
 ];
 
 const QUOTES_DB = [
@@ -362,21 +284,25 @@ const QUOTES_DB = [
 
 // --- 4. 組件 ---
 
-const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, className = "" }) => {
+const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, className = "", autoHeight = false }) => {
   const chakraInfo = CHAKRAS.find(c => c.id === data.type);
   if (!chakraInfo) return null;
   
+  // 根據 autoHeight 決定高度樣式：如果是分享模式(autoHeight=true)，則高度自動(h-auto)且最小高度為96；否則固定高度 h-96
+  const heightClass = autoHeight ? "h-auto min-h-96" : "h-96";
+  const innerHeightClass = autoHeight ? "h-auto min-h-full" : "h-full";
+  
   return (
     <div 
-      className={`relative w-64 h-96 cursor-pointer perspective-1000 transition-transform duration-700 ${className} ${isRevealed && !isMobileFocused ? '' : 'hover:scale-105'}`}
+      className={`relative w-64 ${heightClass} cursor-pointer perspective-1000 transition-transform duration-700 ${className} ${isRevealed && !isMobileFocused ? '' : 'hover:scale-105'}`}
       onClick={onClick}
       style={{ transitionDelay: `${index * 150}ms` }}
     >
-      <div className={`relative w-full h-full duration-1000 preserve-3d transition-all ${isRevealed ? 'rotate-y-180' : ''}`}>
+      <div className={`relative w-full ${innerHeightClass} duration-1000 preserve-3d transition-all ${isRevealed ? 'rotate-y-180' : ''}`}>
         
-        {/* 卡牌背面 */}
+        {/* --- 卡牌背面 --- */}
         {theme === 'night' ? (
-          <div className="absolute w-full h-full backface-hidden rounded-xl shadow-2xl overflow-hidden bg-slate-900 border border-white/10">
+          <div className={`absolute w-full h-full backface-hidden rounded-xl shadow-2xl overflow-hidden bg-slate-900 border border-white/10 ${autoHeight ? 'min-h-[24rem]' : ''}`}>
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/40 via-slate-900 to-black"></div>
             <div className="absolute inset-4 border border-white/10 rounded-lg flex items-center justify-center">
               <div className="w-48 h-48 rounded-full border border-white/5 flex items-center justify-center animate-pulse-slow">
@@ -390,7 +316,7 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
             <p className="absolute bottom-6 w-full text-center text-white/30 text-[10px] tracking-[0.4em] font-light uppercase">Universe</p>
           </div>
         ) : (
-          <div className="absolute w-full h-full backface-hidden rounded-xl shadow-[0_15px_40px_rgba(0,0,0,0.15)] overflow-hidden bg-white border border-stone-300">
+          <div className={`absolute w-full h-full backface-hidden rounded-xl shadow-[0_15px_40px_rgba(0,0,0,0.15)] overflow-hidden bg-white border border-stone-300 ${autoHeight ? 'min-h-[24rem]' : ''}`}>
             <div className="absolute inset-0 bg-gradient-to-br from-white via-orange-50/30 to-orange-50/10"></div>
             <div className="absolute inset-0 opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
             <div className="absolute inset-4 border border-stone-300/60 rounded-lg flex items-center justify-center">
@@ -406,7 +332,7 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
           </div>
         )}
 
-        {/* 卡牌正面 */}
+        {/* --- 卡牌正面 --- */}
         <div className={`absolute w-full h-full backface-hidden rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.1)] rotate-y-180 overflow-hidden flex flex-col items-center text-center p-1 ${theme === 'night' ? 'bg-[#FDFCF8] shadow-black/50' : 'bg-white border border-stone-300 shadow-xl shadow-stone-300/50'}`}>
           <div className={`w-full h-full border-2 ${chakraInfo.color} rounded-lg flex flex-col relative overflow-hidden`}>
              <div className={`absolute top-0 left-0 right-0 h-32 opacity-5 bg-gradient-to-b from-${chakraInfo.color.split('-')[1]}-400 to-transparent`}></div>
@@ -421,9 +347,14 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
                    {data.type === 'thirdEye' && <Eye strokeWidth={1.5} className="w-6 h-6" />}
                    {data.type === 'crown' && <Sparkles strokeWidth={1.5} className="w-6 h-6" />}
                 </div>
-                <h3 className={`text-base font-medium mb-3 leading-relaxed tracking-wide ${theme === 'day' ? chakraInfo.dayTextColor || chakraInfo.textColor : chakraInfo.textColor} font-serif min-h-[4.5rem] flex items-center justify-center`}>{data.text}</h3>
-                <p className="text-[10px] font-serif italic text-slate-500/80 leading-relaxed font-light mb-6 px-2">{data.en}</p>
-                <div className="mt-auto w-full mb-12 pb-6"> 
+                
+                {/* 關鍵修正：如果是分享模式(autoHeight)，取消 overflow-y-auto，改為 h-auto，讓文字撐開卡片 */}
+                <div className={`flex-1 w-full flex flex-col items-center justify-center my-2 ${autoHeight ? 'h-auto' : 'overflow-y-auto no-scrollbar'}`}>
+                  <h3 className={`text-base font-medium mb-2 leading-relaxed tracking-wide ${theme === 'day' ? chakraInfo.dayTextColor || chakraInfo.textColor : chakraInfo.textColor} font-serif text-center`}>{data.text}</h3>
+                  <p className="text-[10px] font-serif italic text-slate-500/80 leading-relaxed font-light text-center px-2">{data.en}</p>
+                </div>
+                
+                <div className="mt-auto w-full mb-12 pb-6 shrink-0"> 
                   <div className="flex items-center justify-center gap-2 mb-2 opacity-20">
                      <div className={`h-[1px] flex-1 ${chakraInfo.color.replace('border', 'bg')}`}></div>
                      <Feather className="w-3 h-3 text-slate-400" />
@@ -436,7 +367,7 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
                   </div>
                 </div>
              </div>
-             <div className="pb-3 text-[8px] uppercase tracking-[0.2em] text-slate-400/60 font-light mt-2">{chakraInfo.name}</div>
+             <div className="pb-3 text-[8px] uppercase tracking-[0.2em] text-slate-400/60 font-light mt-2 absolute bottom-0 w-full text-center">{chakraInfo.name}</div>
           </div>
         </div>
 
@@ -445,9 +376,10 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
   );
 };
 
-// --- 隱藏的分享卡片生成區 ---
+// --- 隱藏的分享卡片生成區 (傳入 autoHeight={true}) ---
 const ShareCardView = ({ cardSelected, theme, targetRef }) => {
   if (!cardSelected) return null;
+
   return (
     <div ref={targetRef} className={`fixed top-[-9999px] left-[-9999px] w-[400px] p-8 flex flex-col items-center justify-center gap-6 ${theme === 'night' ? 'bg-[#1e2029] text-white' : 'bg-[#F5F5F0] text-slate-800'}`}>
       <div className="text-center mb-2">
@@ -455,7 +387,8 @@ const ShareCardView = ({ cardSelected, theme, targetRef }) => {
         <p className="text-[10px] tracking-[0.4em] opacity-60 uppercase">Daily Energy Oracle</p>
         <div className="mt-1 text-[10px] opacity-40">{new Date().toLocaleDateString()}</div>
       </div>
-      <Card data={cardSelected} isRevealed={true} index={0} theme={theme} />
+      {/* 關鍵修正：加入 autoHeight={true}，讓截圖時卡片可以隨文字長度延伸 */}
+      <Card data={cardSelected} isRevealed={true} index={0} theme={theme} autoHeight={true} />
       <div className="mt-2 text-[8px] tracking-[0.5em] opacity-40 uppercase">Connect With The Universe</div>
     </div>
   );
@@ -576,13 +509,11 @@ export default function App() {
 
   const initiateShare = () => { playSfx('click'); setShowShareModal(true); };
 
-  // === 關鍵修正區：分享功能 ===
   const executeShare = async (card) => {
     playSfx('click');
     setCardToShare(card);
     setIsSharing(true);
     setShowShareModal(false);
-    
     setTimeout(async () => {
       if (!shareRef.current || !window.html2canvas) return;
       try {
@@ -593,20 +524,10 @@ export default function App() {
         });
         canvas.toBlob(async (blob) => {
           const file = new File([blob], "daily-energy-card.png", { type: "image/png" });
-          
-          // 判斷是否支援原生的分享功能 (例如在 Safari 或 Chrome App)
-          if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            try {
-              await navigator.share({
-                files: [file],
-                title: '今日能量卡',
-                text: `這是我今天的宇宙指引：${card.text} ✨`,
-              });
-            } catch (err) {
-              console.log("Share canceled", err);
-            }
+          if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            try { await navigator.share({ files: [file], title: '今日能量卡', text: `這是我今天的宇宙指引：${card.text} ✨` }); } 
+            catch (err) { console.log("Share canceled", err); }
           } else {
-            // 如果不支援 (例如 IG 內建瀏覽器)，則降級為下載圖片
             const link = document.createElement('a');
             link.download = `energy-card-${new Date().toISOString().split('T')[0]}.png`;
             link.href = canvas.toDataURL();
@@ -628,7 +549,7 @@ export default function App() {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn">
           <div className={`relative w-full max-w-md p-6 rounded-2xl shadow-2xl flex flex-col items-center ${theme === 'night' ? 'bg-[#1e2029] text-white' : 'bg-[#FDFCF5] text-slate-800'}`}>
             <button onClick={() => setShowShareModal(false)} className="absolute top-4 right-4 opacity-50 hover:opacity-100"><X className="w-5 h-5" /></button>
-            <h3 className="text-xl font-serif tracking-wider mb-6">選擇要分享的卡片</h3>
+            <h3 className="text-xl font-serif tracking-wider mb-6">選擇要下載的卡片</h3>
             <div className="flex gap-4 justify-center w-full">
               {drawnCards.map((card, idx) => (
                 <div key={idx} className="flex flex-col items-center gap-3 cursor-pointer group" onClick={() => executeShare(card)}>
@@ -671,7 +592,6 @@ export default function App() {
           {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
         </button>
       </div>
-      
       <div className="absolute top-6 right-6 z-50">
         <button onClick={toggleTheme} className={`p-3 rounded-full backdrop-blur-md border transition-all duration-500 hover:scale-110 ${theme === 'night' ? 'bg-white/5 border-white/10 text-indigo-200 hover:bg-white/10' : 'bg-[#FFF9F0]/80 border-orange-200/50 text-orange-400 hover:bg-white shadow-sm'}`} title={theme === 'night' ? "Switch to Day Mode" : "Switch to Night Mode"}>
           {theme === 'night' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -766,8 +686,8 @@ export default function App() {
                   </button>
                   <button onClick={initiateShare} disabled={isSharing} className={`group relative px-6 py-2 overflow-hidden rounded-full bg-transparent border transition-all duration-300 ${theme === 'night' ? 'border-indigo-500/50 hover:border-indigo-400 bg-indigo-900/20' : 'border-orange-300 hover:border-orange-400 bg-orange-50'}`}>
                     <div className="relative flex items-center gap-2">
-                      {isSharing ? <span className="animate-spin"><RefreshCw className="w-3 h-3" /></span> : <InstagramShareIcon className={`w-3 h-3 ${theme === 'night' ? 'text-indigo-300' : 'text-orange-500'}`} />}
-                      <span className={`tracking-[0.2em] text-xs ${theme === 'night' ? 'text-indigo-200' : 'text-orange-600'}`}>{isSharing ? 'SAVING...' : 'SHARE'}</span>
+                      {isSharing ? <span className="animate-spin"><RefreshCw className="w-3 h-3" /></span> : <Download className={`w-3 h-3 ${theme === 'night' ? 'text-indigo-300' : 'text-orange-500'}`} />}
+                      <span className={`tracking-[0.2em] text-xs ${theme === 'night' ? 'text-indigo-200' : 'text-orange-600'}`}>{isSharing ? 'SAVING...' : 'DOWNLOAD'}</span>
                     </div>
                   </button>
                 </div>
@@ -811,6 +731,15 @@ export default function App() {
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* 隱藏 Scrollbar */
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+        }
       `}</style>
     </div>
   );
