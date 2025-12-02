@@ -238,7 +238,7 @@ const QUOTES_DB = [
   { text: "信任宇宙的流動。", en: "Trust the flow of the universe.", type: "thirdEye" },
   { text: "過去、現在、未來同時存在。", en: "Past, present, and future exist simultaneously.", type: "thirdEye" },
   { text: "你的意識決定了你的實相。", en: "Your consciousness determines your reality.", type: "thirdEye" },
-  { text: "醒來吧，你活顛倒幻想中。", en: "Wake up, you’re living upside down in an illusion.", type: "thirdEye" },
+  { text: "醒來吧，你可能活顛倒幻想中。", en: "Wake up, you’re living upside down in an illusion.", type: "thirdEye" },
   { text: "內在的光芒永遠不會熄滅。", en: "The inner light never goes out.", type: "thirdEye" },
   { text: "用靈魂的眼睛看世界。", en: "See the world through the eyes of the soul.", type: "thirdEye" },
   { text: "你自己就是你一直在等待的答案。", en: "You are the answer you've been waiting for.", type: "thirdEye" },
