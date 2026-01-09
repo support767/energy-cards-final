@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, RefreshCw, Heart, Zap, Infinity, Star, Move, Eye, Moon, Feather, Sun, Droplets, Wind, Mountain, Flower, Cloud, Download, X, Volume2, VolumeX, Microscope } from 'lucide-react';
+import { Sparkles, RefreshCw, Heart, Zap, Infinity, Star, Move, Eye, Moon, Feather, Sun, Droplets, Wind, Mountain, Flower, Cloud, Download, X, Volume2, VolumeX, Microscope, ChevronLeft, ChevronRight } from 'lucide-react';
+
 
 // --- 1. 音效資源連結 ---
 const AUDIO_SRC = {
   dayBgm: "https://assets.mixkit.co/music/preview/mixkit-valley-sunset-127.mp3",
   nightBgm: "https://assets.mixkit.co/music/preview/mixkit-night-sky-970.mp3",
   cardFlip: "https://assets.mixkit.co/sfx/preview/mixkit-game-card-flip-2569.mp3",
-  click: "https://assets.mixkit.co/sfx/preview/mixkit-modern-click-box-check-1120.mp3"
+  click: "https://assets.mixkit.co/sfx/preview/mixkit-modern-click-box-check-1120.mp3",
+  swoosh: "https://assets.mixkit.co/sfx/preview/mixkit-light-transition-whoosh-2611.mp3"
 };
+
 
 // --- 2. 自定義 SVG 圖示 ---
 const InstagramShareIcon = ({ className }) => (
@@ -16,6 +19,7 @@ const InstagramShareIcon = ({ className }) => (
     <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
   </svg>
 );
+
 
 // --- 3. 數據庫與配置 ---
 const CHAKRAS = [
@@ -284,19 +288,19 @@ const QUOTES_DB = [
 const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, className = "", autoHeight = false, captureMode = false }) => {
   const chakraInfo = CHAKRAS.find(c => c.id === data.type);
   if (!chakraInfo) return null;
-  
+ 
   // 根據 autoHeight 決定高度樣式
   const heightClass = autoHeight ? "h-auto min-h-96" : "h-96";
   const innerHeightClass = autoHeight ? "h-auto min-h-full" : "h-full";
-  
+ 
   return (
-    <div 
+    <div
       className={`relative w-64 ${heightClass} cursor-pointer ${!captureMode ? 'perspective-1000' : ''} transition-transform duration-700 ${className} ${isRevealed && !isMobileFocused ? '' : 'hover:scale-105'}`}
       onClick={onClick}
       style={{ transitionDelay: `${index * 150}ms` }}
     >
       <div className={`relative w-full ${innerHeightClass} ${!captureMode ? 'duration-1000 preserve-3d' : ''} transition-all ${(isRevealed && !captureMode) ? 'rotate-y-180' : ''}`}>
-        
+       
         {/* --- 卡牌背面 --- */}
         {!captureMode && (
           theme === 'night' ? (
@@ -331,8 +335,8 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
           )
         )}
 
+
         {/* --- 卡牌正面 --- */}
-        {/* 關鍵修正：在 captureMode 下改用 relative，讓內容撐開容器高度 */}
         <div className={`${captureMode ? 'relative' : 'absolute'} w-full h-full backface-hidden rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.1)] ${!captureMode ? 'rotate-y-180' : ''} overflow-hidden flex flex-col items-center text-center p-1 ${theme === 'night' ? 'bg-[#FDFCF8] shadow-black/50' : 'bg-white border border-stone-300 shadow-xl shadow-stone-300/50'}`}>
           <div className={`w-full h-full border-2 ${chakraInfo.color} rounded-lg flex flex-col relative overflow-hidden`}>
              <div className={`absolute top-0 left-0 right-0 h-32 opacity-5 bg-gradient-to-b from-${chakraInfo.color.split('-')[1]}-400 to-transparent`}></div>
@@ -347,13 +351,13 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
                    {data.type === 'thirdEye' && <Eye strokeWidth={1.5} className="w-6 h-6" />}
                    {data.type === 'crown' && <Sparkles strokeWidth={1.5} className="w-6 h-6" />}
                 </div>
-                
+               
                 <div className={`flex-1 w-full flex flex-col items-center justify-center my-2 ${autoHeight ? 'h-auto' : 'overflow-y-auto no-scrollbar'}`}>
                   <h3 className={`text-base font-medium mb-2 leading-relaxed tracking-wide ${theme === 'day' ? chakraInfo.dayTextColor || chakraInfo.textColor : chakraInfo.textColor} font-serif text-center`}>{data.text}</h3>
                   <p className="text-[10px] font-serif italic text-slate-500/80 leading-relaxed font-light text-center px-2">{data.en}</p>
                 </div>
-                
-                <div className="mt-auto w-full mb-12 pb-6 shrink-0"> 
+               
+                <div className="mt-auto w-full mb-12 pb-6 shrink-0">
                   <div className="flex items-center justify-center gap-2 mb-2 opacity-20">
                      <div className={`h-[1px] flex-1 ${chakraInfo.color.replace('border', 'bg')}`}></div>
                      <Feather className="w-3 h-3 text-slate-400" />
@@ -370,14 +374,17 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
           </div>
         </div>
 
+
       </div>
     </div>
   );
 };
 
+
 // --- 隱藏的分享卡片生成區 ---
 const ShareCardView = ({ cardSelected, theme, targetRef }) => {
   if (!cardSelected) return null;
+
 
   return (
     <div ref={targetRef} className={`fixed top-[-9999px] left-[-9999px] w-[400px] p-8 flex flex-col items-center justify-center gap-6 ${theme === 'night' ? 'bg-[#1e2029] text-white' : 'bg-[#F5F5F0] text-slate-800'}`}>
@@ -392,25 +399,33 @@ const ShareCardView = ({ cardSelected, theme, targetRef }) => {
   );
 };
 
+
 export default function App() {
   const [gameState, setGameState] = useState('intro');
   const [drawnCards, setDrawnCards] = useState([]);
   const [flippedStates, setFlippedStates] = useState([false, false]);
   const [theme, setTheme] = useState('night');
   const [particles, setParticles] = useState([]);
-  const [mobileFocusIndex, setMobileFocusIndex] = useState(0); 
+  const [mobileFocusIndex, setMobileFocusIndex] = useState(0);
   const [isSharing, setIsSharing] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
-  const [cardToShare, setCardToShare] = useState(null); 
+  const [cardToShare, setCardToShare] = useState(null);
   const shareRef = useRef(null);
-  const [isMuted, setIsMuted] = useState(false); 
+  const [isMuted, setIsMuted] = useState(false);
   const bgmRef = useRef(null);
+ 
+  // Swipe Logic States
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+  const [showGestureHint, setShowGestureHint] = useState(false);
+
 
   useEffect(() => {
     const hour = new Date().getHours();
     if (hour >= 6 && hour < 18) setTheme('day');
     else setTheme('night');
   }, []);
+
 
   useEffect(() => {
     const script = document.createElement('script');
@@ -419,6 +434,7 @@ export default function App() {
     document.body.appendChild(script);
     return () => { if (document.body.contains(script)) document.body.removeChild(script); };
   }, []);
+
 
   useEffect(() => {
     if (!bgmRef.current) {
@@ -434,6 +450,7 @@ export default function App() {
     }
   }, [theme]);
 
+
   useEffect(() => {
     if (bgmRef.current) {
       if (isMuted) bgmRef.current.pause();
@@ -441,15 +458,33 @@ export default function App() {
     }
   }, [isMuted]);
 
+
+  // Gesture Hint Timer Logic
+  useEffect(() => {
+    let timer;
+    // 只有當剛好翻開一張牌，且遊戲狀態是 drawing 時，才開始計時顯示手勢提示
+    if (gameState === 'drawing' && flippedStates.filter(Boolean).length === 1) {
+      timer = setTimeout(() => {
+        setShowGestureHint(true);
+      }, 3000); // 3秒後顯示
+    } else {
+      setShowGestureHint(false);
+    }
+    return () => clearTimeout(timer);
+  }, [flippedStates, gameState]);
+
+
   const playSfx = (type) => {
     if (isMuted) return;
     const sfx = new Audio(AUDIO_SRC[type]);
-    sfx.volume = 0.6;
+    sfx.volume = type === 'swoosh' ? 0.4 : 0.6;
     sfx.play().catch(e => console.log("SFX failed", e));
   };
 
+
   const toggleTheme = () => { playSfx('click'); setTheme(prev => prev === 'day' ? 'night' : 'day'); };
   const toggleMute = () => { setIsMuted(prev => !prev); };
+
 
   useEffect(() => {
     const newParticles = Array.from({ length: 40 }).map((_, i) => ({
@@ -462,6 +497,7 @@ export default function App() {
     }));
     setParticles(newParticles);
   }, []);
+
 
   const drawCards = () => {
     if (bgmRef.current && bgmRef.current.paused && !isMuted) {
@@ -478,11 +514,13 @@ export default function App() {
     }, 2500);
   };
 
+
   const toggleFlip = (index) => {
     const isMobile = window.innerWidth < 768;
     if (isMobile && mobileFocusIndex !== index) {
       playSfx('click');
       setMobileFocusIndex(index);
+      setShowGestureHint(false);
       return;
     }
     if (flippedStates[index]) return;
@@ -496,6 +534,40 @@ export default function App() {
     }
   };
 
+
+  // --- Touch Event Handlers ---
+  const minSwipeDistance = 50;
+
+
+  const onTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+
+  const onTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+   
+    if (isLeftSwipe || isRightSwipe) {
+       // Toggle focus
+       const isMobile = window.innerWidth < 768;
+       if (isMobile) {
+          setMobileFocusIndex(prev => prev === 0 ? 1 : 0);
+          playSfx('swoosh');
+          setShowGestureHint(false);
+       }
+    }
+  };
+
+
   const resetGame = () => {
     playSfx('click');
     setGameState('intro');
@@ -503,9 +575,12 @@ export default function App() {
     setDrawnCards([]);
     setMobileFocusIndex(0);
     setShowShareModal(false);
+    setShowGestureHint(false);
   };
 
+
   const initiateShare = () => { playSfx('click'); setShowShareModal(true); };
+
 
   const executeShare = async (card) => {
     playSfx('click');
@@ -515,15 +590,15 @@ export default function App() {
     setTimeout(async () => {
       if (!shareRef.current || !window.html2canvas) return;
       try {
-        const canvas = await window.html2canvas(shareRef.current, { 
-          useCORS: true, 
+        const canvas = await window.html2canvas(shareRef.current, {
+          useCORS: true,
           backgroundColor: theme === 'night' ? '#1e2029' : '#F5F5F0',
-          scale: 3 
+          scale: 3
         });
         canvas.toBlob(async (blob) => {
           const file = new File([blob], "daily-energy-card.png", { type: "image/png" });
           if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-            try { await navigator.share({ files: [file], title: '今日能量卡', text: `這是我今天的宇宙指引：${card.text} ✨` }); } 
+            try { await navigator.share({ files: [file], title: '今日能量卡', text: `這是我今天的宇宙指引：${card.text} ✨` }); }
             catch (err) { console.log("Share canceled", err); }
           } else {
             const link = document.createElement('a');
@@ -538,10 +613,21 @@ export default function App() {
     }, 500);
   };
 
+
+  // 判斷手機版提示文字 (簡化版，只保留最重要的狀態)
+  const getMobileInstruction = () => {
+    const flippedCount = flippedStates.filter(Boolean).length;
+    if (flippedCount === 0) return "點擊卡牌翻開訊息";
+    // 這裡我們不提示 "切換"，因為有手勢提示動畫了，保持文字乾淨
+    return "";
+  };
+
+
   return (
     <div className={`min-h-screen w-full font-sans overflow-hidden flex flex-col items-center justify-center relative transition-colors duration-1000 ${theme === 'night' ? 'bg-[#050510] text-white' : 'bg-[#F0EFEB] text-slate-800'}`}>
-      
+     
       <ShareCardView cardSelected={cardToShare} theme={theme} targetRef={shareRef} />
+
 
       {showShareModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn">
@@ -562,10 +648,12 @@ export default function App() {
         </div>
       )}
 
+
       <div className={`fixed bottom-4 right-4 z-40 flex items-center gap-2 transition-opacity duration-300 ${theme === 'night' ? 'text-white/20 hover:text-white/50' : 'text-slate-800/20 hover:text-slate-800/50'}`}>
          <Microscope className="w-4 h-4" />
          <span className="text-[10px] tracking-widest font-serif">Powered by 健康關係實驗室</span>
       </div>
+
 
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
          {theme === 'night' ? (
@@ -585,6 +673,7 @@ export default function App() {
          )}
       </div>
 
+
       <div className="absolute top-6 left-6 z-50">
         <button onClick={toggleMute} className={`p-3 rounded-full backdrop-blur-md border transition-all duration-500 hover:scale-110 ${theme === 'night' ? 'bg-white/5 border-white/10 text-indigo-200 hover:bg-white/10' : 'bg-[#FFF9F0]/80 border-orange-200/50 text-orange-400 hover:bg-white shadow-sm'}`} title={isMuted ? "Unmute Sound" : "Mute Sound"}>
           {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
@@ -596,6 +685,7 @@ export default function App() {
         </button>
       </div>
 
+
       <div className="z-10 w-full max-w-4xl px-4 flex flex-col items-center">
         <header className="mb-6 md:mb-10 text-center relative">
           <div className={`absolute -inset-8 bg-gradient-to-r blur-xl ${theme === 'night' ? 'from-transparent via-purple-500/10 to-transparent' : 'from-transparent via-orange-300/10 to-transparent'}`}></div>
@@ -606,6 +696,7 @@ export default function App() {
              <div className={`h-[1px] w-12 bg-gradient-to-l ${theme === 'night' ? 'from-transparent to-white' : 'from-transparent to-slate-400'}`}></div>
           </div>
         </header>
+
 
         {gameState === 'intro' && (
           <div className="flex flex-col items-center animate-fadeIn">
@@ -623,9 +714,10 @@ export default function App() {
                  </div>
               </div>
             </div>
-            <p className={`mt-12 text-center max-w-md leading-loose font-serif text-sm tracking-wide ${theme === 'night' ? 'text-indigo-200/40' : 'text-slate-500/60'}`}>{theme === 'night' ? "萬物皆有頻率，讓宇宙的指引流向你。" : "新的一天，深呼吸，接收今日的祝福與光。"}</p>
+            <p className={`mt-12 text-center max-w-md leading-loose font-serif text-sm tracking-wide ${theme === 'night' ? 'text-indigo-200/40' : 'text-slate-500/60'}`}>{theme === 'night' ? "萬物皆有頻率，抽取兩張卡牌，接收今日的指引與能量。" : "新的一天，深呼吸，抽取兩張卡牌，接收祝福與光。"}</p>
           </div>
         )}
+
 
         {gameState === 'shuffling' && (
           <div className="flex flex-col items-center justify-center h-80">
@@ -638,30 +730,62 @@ export default function App() {
           </div>
         )}
 
+
         {(gameState === 'drawing' || gameState === 'result') && (
           <div className="w-full flex flex-col items-center">
-            <div className="relative w-full h-[450px] md:h-auto flex justify-center items-center perspective-1000 mb-10">
+           
+            {/* Gesture Hint Animation Overlay - REMOVED! Purely physical card nudge now. */}
+
+
+            <div
+               className="relative w-full h-[450px] md:h-auto flex justify-center items-center perspective-1000 mb-6 md:mb-10"
+               onTouchStart={onTouchStart}
+               onTouchMove={onTouchMove}
+               onTouchEnd={onTouchEnd}
+            >
               {drawnCards.map((card, idx) => {
                 const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
                 const isFocused = mobileFocusIndex === idx;
                 const shouldGlow = isMobile && flippedStates.filter(Boolean).length === 1 && !flippedStates[idx];
-                
-                const glowClass = shouldGlow 
-                  ? (theme === 'day' 
-                      ? "animate-flash-glow-day ring-4 ring-orange-500 shadow-[0_0_80px_rgba(249,115,22,0.9)] rounded-xl relative z-50" 
+               
+                const glowClass = shouldGlow
+                  ? (theme === 'day'
+                      ? "animate-flash-glow-day ring-4 ring-orange-500 shadow-[0_0_80px_rgba(249,115,22,0.9)] rounded-xl relative z-50"
                       : "animate-flash-glow-night ring-4 ring-white shadow-[0_0_80px_rgba(255,255,255,1)] rounded-xl relative z-50")
                   : "";
+
 
                 let containerStyle = {};
                 if (isMobile) {
                   if (isFocused) {
-                    containerStyle = { zIndex: 50, transform: 'translate(-50%, -50%) scale(1.05) rotate(0deg)', top: '45%', left: '50%' };
+                    // Center Card Animation (Nudge Center)
+                    const nudgeStyle = showGestureHint ? { animation: 'card-nudge-center 1.5s ease-in-out infinite' } : {};
+                    containerStyle = {
+                      zIndex: 50,
+                      transform: 'translate(-50%, -50%) scale(1.05) rotate(0deg)',
+                      top: '45%',
+                      left: '50%',
+                      ...nudgeStyle
+                    };
                   } else {
-                    containerStyle = { zIndex: shouldGlow ? 40 : 10, transform: `translate(${idx === 0 ? '-65%' : '-35%'}, -48%) scale(0.95) rotate(${idx === 0 ? '-5deg' : '5deg'})`, top: '55%', left: '50%' };
+                    // Background Card Animation (Nudge Back)
+                    // If we are showing hint, animate the back card too
+                    const nudgeBackStyle = showGestureHint && idx === 1 && mobileFocusIndex === 0
+                      ? { animation: 'card-nudge-back-friction 1.5s ease-in-out infinite' }
+                      : {};
+                     
+                    containerStyle = {
+                        zIndex: shouldGlow ? 40 : 10,
+                        transform: `translate(${idx === 0 ? '-65%' : '-35%'}, -48%) scale(0.95) rotate(${idx === 0 ? '-5deg' : '5deg'})`,
+                        top: '55%',
+                        left: '50%',
+                        ...nudgeBackStyle
+                    };
                   }
                 } else {
-                  containerStyle = { margin: '0 20px' }; 
+                  containerStyle = { margin: '0 20px' };
                 }
+
 
                 return (
                   <div key={idx} className={`${isMobile ? 'absolute' : 'relative'} flex flex-col items-center gap-6 transition-all duration-500`} style={containerStyle} onClick={() => isMobile && toggleFlip(idx)}>
@@ -671,6 +795,7 @@ export default function App() {
                 );
               })}
             </div>
+
 
             {gameState === 'result' && (
               <div className="animate-fadeInUp flex flex-col items-center gap-4 mt-2 md:mt-0 z-50">
@@ -691,15 +816,17 @@ export default function App() {
                 </div>
               </div>
             )}
-            
+           
             {gameState === 'drawing' && !flippedStates.every(Boolean) && (
-               <p className={`mt-8 mb-20 md:mb-8 animate-pulse tracking-[0.2em] text-xs font-light ${theme === 'night' ? 'text-indigo-200/30' : 'text-slate-400'}`}>{typeof window !== 'undefined' && window.innerWidth < 768 ? "點擊卡牌切換與翻開" : "點擊卡牌翻開訊息"}</p>
+               <p className={`mt-4 mb-20 md:mb-8 animate-pulse tracking-[0.2em] text-xs font-light ${theme === 'night' ? 'text-indigo-200/50' : 'text-slate-400'} flex items-center gap-2`}>
+                 {typeof window !== 'undefined' && window.innerWidth < 768 ? getMobileInstruction() : "點擊卡牌翻開訊息"}
+               </p>
             )}
           </div>
         )}
       </div>
-      
-      <style jsx global>{`
+     
+      <style>{`
         .perspective-1000 { perspective: 1000px; }
         .preserve-3d { transform-style: preserve-3d; }
         .backface-hidden { backface-visibility: hidden; }
@@ -708,7 +835,23 @@ export default function App() {
         .animate-fadeInUp { animation: fadeInUp 1s ease-out forwards; }
         .animate-pulse-slow { animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
         .animate-spin-slow { animation: spin 12s linear infinite; }
-        
+       
+        /* 卡牌物理暗示 (Nudge Center - Focused Card) */
+        @keyframes card-nudge-center {
+          0%, 100% { transform: translate(-50%, -50%) rotate(0deg) scale(1.05); }
+          25% { transform: translate(-58%, -50%) rotate(-3deg) scale(1.05); } /* 向左推動 */
+          50% { transform: translate(-50%, -50%) rotate(0deg) scale(1.05); }
+        }
+
+
+        /* 卡牌物理暗示 (Nudge Back Friction - Background Card) */
+        @keyframes card-nudge-back-friction {
+          0%, 100% { transform: translate(-35%, -48%) rotate(5deg) scale(0.95); }
+          25% { transform: translate(-30%, -48%) rotate(7deg) scale(0.95); } /* 反向向右推動，產生摩擦/剝離感 */
+          50% { transform: translate(-35%, -48%) rotate(5deg) scale(0.95); }
+        }
+
+
         /* 自定義急促閃爍動畫 - 日間模式 (Orange) */
         @keyframes flashGlowDay {
           0%, 100% { opacity: 1; box-shadow: 0 0 20px rgba(249,115,22,0.6); transform: scale(1); }
@@ -717,6 +860,7 @@ export default function App() {
         .animate-flash-glow-day {
           animation: flashGlowDay 1.2s infinite;
         }
+
 
         /* 自定義急促閃爍動畫 - 夜間模式 (White) */
         @keyframes flashGlowWhite {
@@ -727,9 +871,10 @@ export default function App() {
           animation: flashGlowWhite 1.5s infinite;
         }
 
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
+       
         /* 隱藏 Scrollbar */
         .no-scrollbar::-webkit-scrollbar {
           display: none;
@@ -742,3 +887,4 @@ export default function App() {
     </div>
   );
 }
+
