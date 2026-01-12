@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, RefreshCw, Heart, Zap, Infinity, Star, Move, Eye, Moon, Feather, Sun, Droplets, Wind, Mountain, Flower, Cloud, Download, X, Volume2, VolumeX, Microscope, ChevronLeft, ChevronRight } from 'lucide-react';
-
+import { Sparkles, RefreshCw, Heart, Zap, Infinity, Star, Move, Eye, Moon, Feather, Sun, Droplets, Wind, Mountain, Flower, Cloud, Download, X, Volume2, VolumeX, Microscope, ChevronLeft, ChevronRight, Clock, Ticket } from 'lucide-react';
 
 // --- 1. 音效資源連結 ---
 const AUDIO_SRC = {
@@ -8,29 +7,34 @@ const AUDIO_SRC = {
   nightBgm: "https://assets.mixkit.co/music/preview/mixkit-night-sky-970.mp3",
   cardFlip: "https://assets.mixkit.co/sfx/preview/mixkit-game-card-flip-2569.mp3",
   click: "https://assets.mixkit.co/sfx/preview/mixkit-modern-click-box-check-1120.mp3",
-  swoosh: "https://assets.mixkit.co/sfx/preview/mixkit-light-transition-whoosh-2611.mp3"
+  swoosh: "https://assets.mixkit.co/sfx/preview/mixkit-light-transition-whoosh-2611.mp3",
+  win: "https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"
 };
 
-
-// --- 2. 自定義 SVG 圖示 ---
-const InstagramShareIcon = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <line x1="22" y1="2" x2="11" y2="13"></line>
-    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-  </svg>
-);
-
-
-// --- 3. 數據庫與配置 ---
-const CHAKRAS = [
-  { id: 'root', name: '海底輪 · Root Chakra', color: 'border-red-400', textColor: 'text-red-900', dayTextColor: 'text-red-900', subColor: 'text-red-600/60', shadow: 'shadow-red-900/10', iconColor: 'text-red-500', keywords: '生存 · 安全 · 穩定', guidance: '對應脊椎根部，代表生存本能、安全感與大地的連結。' },
-  { id: 'sacral', name: '生殖輪 · Sacral Chakra', color: 'border-orange-400', textColor: 'text-orange-900', dayTextColor: 'text-orange-900', subColor: 'text-orange-600/60', shadow: 'shadow-orange-900/10', iconColor: 'text-orange-500', keywords: '情緒 · 創造 · 喜悅', guidance: '對應下腹部，代表情緒流動、感官享受與創造力的泉源。' },
-  { id: 'solar', name: '太陽神經叢 · Solar Plexus', color: 'border-yellow-500', textColor: 'text-yellow-900', dayTextColor: 'text-yellow-800', subColor: 'text-yellow-700/60', shadow: 'shadow-yellow-900/10', iconColor: 'text-yellow-600', keywords: '自信 · 意志 · 行動', guidance: '對應胃部，代表意志力、自信與個人力量的主導權。' },
-  { id: 'heart', name: '心輪 · Heart Chakra', color: 'border-green-500', textColor: 'text-green-900', dayTextColor: 'text-green-900', subColor: 'text-green-700/60', shadow: 'shadow-green-900/10', iconColor: 'text-green-600', keywords: '愛 · 寬恕 · 接納', guidance: '對應心臟與胸腔，代表無條件的愛、接納與慈悲的流動。' },
-  { id: 'throat', name: '喉輪 · Throat Chakra', color: 'border-blue-400', textColor: 'text-blue-900', dayTextColor: 'text-blue-900', subColor: 'text-blue-700/60', shadow: 'shadow-blue-900/10', iconColor: 'text-blue-500', keywords: '溝通 · 真實 · 表達', guidance: '對應喉嚨，代表真實的溝通、自我表達與內在誠信。' },
-  { id: 'thirdEye', name: '眉心輪 · Third Eye', color: 'border-indigo-400', textColor: 'text-indigo-900', dayTextColor: 'text-indigo-900', subColor: 'text-indigo-700/60', shadow: 'shadow-indigo-900/10', iconColor: 'text-indigo-600', keywords: '直覺 · 洞見 · 想像', guidance: '對應眉心，代表直覺力、洞察力與超越表象的智慧。' },
-  { id: 'crown', name: '頂輪 · Crown Chakra', color: 'border-violet-400', textColor: 'text-violet-900', dayTextColor: 'text-violet-900', subColor: 'text-violet-700/60', shadow: 'shadow-violet-900/10', iconColor: 'text-violet-600', keywords: '靈性 · 合一 · 智慧', guidance: '對應頭頂，代表靈性連結、合一意識與更高的悟性。' },
-];
+// --- 2. 卡牌樣式定義 ---
+const CARD_STYLES = {
+  // 脈輪系列
+  root: { name: '海底輪 · Root Chakra', color: 'border-red-400', textColor: 'text-red-900', dayTextColor: 'text-red-900', subColor: 'text-red-600/60', shadow: 'shadow-red-900/10', iconColor: 'text-red-500', keywords: '生存 · 安全 · 穩定', guidance: '對應脊椎根部，代表生存本能、安全感與大地的連結。' },
+  sacral: { name: '生殖輪 · Sacral Chakra', color: 'border-orange-400', textColor: 'text-orange-900', dayTextColor: 'text-orange-900', subColor: 'text-orange-600/60', shadow: 'shadow-orange-900/10', iconColor: 'text-orange-500', keywords: '情緒 · 創造 · 喜悅', guidance: '對應下腹部，代表情緒流動、感官享受與創造力的泉源。' },
+  solar: { name: '太陽神經叢 · Solar Plexus', color: 'border-yellow-500', textColor: 'text-yellow-900', dayTextColor: 'text-yellow-800', subColor: 'text-yellow-700/60', shadow: 'shadow-yellow-900/10', iconColor: 'text-yellow-600', keywords: '自信 · 意志 · 行動', guidance: '對應胃部，代表意志力、自信與個人力量的主導權。' },
+  heart: { name: '心輪 · Heart Chakra', color: 'border-green-500', textColor: 'text-green-900', dayTextColor: 'text-green-900', subColor: 'text-green-700/60', shadow: 'shadow-green-900/10', iconColor: 'text-green-600', keywords: '愛 · 寬恕 · 接納', guidance: '對應心臟與胸腔，代表無條件的愛、接納與慈悲的流動。' },
+  throat: { name: '喉輪 · Throat Chakra', color: 'border-blue-400', textColor: 'text-blue-900', dayTextColor: 'text-blue-900', subColor: 'text-blue-700/60', shadow: 'shadow-blue-900/10', iconColor: 'text-blue-500', keywords: '溝通 · 真實 · 表達', guidance: '對應喉嚨，代表真實的溝通、自我表達與內在誠信。' },
+  thirdEye: { name: '眉心輪 · Third Eye', color: 'border-indigo-400', textColor: 'text-indigo-900', dayTextColor: 'text-indigo-900', subColor: 'text-indigo-700/60', shadow: 'shadow-indigo-900/10', iconColor: 'text-indigo-600', keywords: '直覺 · 洞見 · 想像', guidance: '對應眉心，代表直覺力、洞察力與超越表象的智慧。' },
+  crown: { name: '頂輪 · Crown Chakra', color: 'border-violet-400', textColor: 'text-violet-900', dayTextColor: 'text-violet-900', subColor: 'text-violet-700/60', shadow: 'shadow-violet-900/10', iconColor: 'text-violet-600', keywords: '靈性 · 合一 · 智慧', guidance: '對應頭頂，代表靈性連結、合一意識與更高的悟性。' },
+  
+  // 🔬 特別獎品卡 (實驗室)
+  prize: { 
+    name: '健康關係實驗室 · The Lab', 
+    color: 'border-amber-400', 
+    textColor: 'text-amber-900', 
+    dayTextColor: 'text-amber-900', 
+    subColor: 'text-amber-600/60', 
+    shadow: 'shadow-amber-500/20', 
+    iconColor: 'text-amber-500', 
+    keywords: '覺察 · 連結 · 實驗', 
+    guidance: '這是一張稀有的邀請函。你的覺察開啟了新的可能性。' 
+  }
+};
 
 const QUOTES_DB = [
   // --- 紅色：海底輪 (Root) ---
@@ -283,15 +287,26 @@ const QUOTES_DB = [
   { text: "愛是所有問題的答案。", en: "Love is the answer to all questions.", type: "crown" },
 ];
 
+// --- 3. 工具函數 ---
+const generatePrizeCode = () => {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 8; i++) {
+    if (i === 4) code += '-';
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+};
+
 // --- 4. 組件 ---
 
 const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, className = "", autoHeight = false, captureMode = false }) => {
-  const chakraInfo = CHAKRAS.find(c => c.id === data.type);
-  if (!chakraInfo) return null;
+  const styleInfo = CARD_STYLES[data.type];
+  if (!styleInfo) return null;
  
-  // 根據 autoHeight 決定高度樣式
   const heightClass = autoHeight ? "h-auto min-h-96" : "h-96";
   const innerHeightClass = autoHeight ? "h-auto min-h-full" : "h-full";
+  const isPrize = data.type === 'prize';
  
   return (
     <div
@@ -335,14 +350,17 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
           )
         )}
 
-
         {/* --- 卡牌正面 --- */}
         <div className={`${captureMode ? 'relative' : 'absolute'} w-full h-full backface-hidden rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.1)] ${!captureMode ? 'rotate-y-180' : ''} overflow-hidden flex flex-col items-center text-center p-1 ${theme === 'night' ? 'bg-[#FDFCF8] shadow-black/50' : 'bg-white border border-stone-300 shadow-xl shadow-stone-300/50'}`}>
-          <div className={`w-full h-full border-2 ${chakraInfo.color} rounded-lg flex flex-col relative overflow-hidden`}>
-             <div className={`absolute top-0 left-0 right-0 h-32 opacity-5 bg-gradient-to-b from-${chakraInfo.color.split('-')[1]}-400 to-transparent`}></div>
+          <div className={`w-full h-full border-2 ${styleInfo.color} rounded-lg flex flex-col relative overflow-hidden ${isPrize ? 'bg-gradient-to-br from-yellow-50 via-amber-100/20 to-yellow-50' : ''}`}>
+             
+             {isPrize && <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diamond-upholstery.png')] opacity-10"></div>}
+             {isPrize && <div className="absolute inset-0 bg-gradient-to-tr from-amber-200/10 via-white/40 to-amber-200/10 animate-pulse"></div>}
+
+             <div className={`absolute top-0 left-0 right-0 h-32 opacity-5 bg-gradient-to-b from-${styleInfo.color.split('-')[1]}-400 to-transparent`}></div>
              <div className="flex-1 flex flex-col items-center p-5 pt-8 relative z-10">
-                <div className={`text-[10px] tracking-[0.2em] uppercase font-bold mb-3 ${chakraInfo.subColor}`}>{chakraInfo.keywords}</div>
-                <div className={`mb-6 opacity-90 ${chakraInfo.iconColor}`}>
+                <div className={`text-[10px] tracking-[0.2em] uppercase font-bold mb-3 ${styleInfo.subColor}`}>{styleInfo.keywords}</div>
+                <div className={`mb-6 opacity-90 ${styleInfo.iconColor}`}>
                    {data.type === 'root' && <Mountain strokeWidth={1.5} className="w-6 h-6" />}
                    {data.type === 'sacral' && <Droplets strokeWidth={1.5} className="w-6 h-6" />}
                    {data.type === 'solar' && <Sun strokeWidth={1.5} className="w-6 h-6" />}
@@ -350,41 +368,46 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
                    {data.type === 'throat' && <Wind strokeWidth={1.5} className="w-6 h-6" />}
                    {data.type === 'thirdEye' && <Eye strokeWidth={1.5} className="w-6 h-6" />}
                    {data.type === 'crown' && <Sparkles strokeWidth={1.5} className="w-6 h-6" />}
+                   {data.type === 'prize' && <Microscope strokeWidth={1.5} className="w-8 h-8 animate-bounce-slow" />}
                 </div>
                
                 <div className={`flex-1 w-full flex flex-col items-center justify-center my-2 ${autoHeight ? 'h-auto' : 'overflow-y-auto no-scrollbar'}`}>
-                  <h3 className={`text-base font-medium mb-2 leading-relaxed tracking-wide ${theme === 'day' ? chakraInfo.dayTextColor || chakraInfo.textColor : chakraInfo.textColor} font-serif text-center`}>{data.text}</h3>
+                  <h3 className={`text-base font-medium mb-2 leading-relaxed tracking-wide ${theme === 'day' ? styleInfo.dayTextColor || styleInfo.textColor : styleInfo.textColor} font-serif text-center`}>{data.text}</h3>
                   <p className="text-[10px] font-serif italic text-slate-500/80 leading-relaxed font-light text-center px-2">{data.en}</p>
+                  
+                  {isPrize && data.prizeCode && (
+                     <div className="mt-4 px-4 py-2 border border-amber-300/50 bg-amber-50/50 rounded-lg">
+                        <p className="text-[9px] text-amber-800/60 uppercase tracking-widest mb-1 text-center">Ticket Code</p>
+                        <p className="text-sm font-mono font-bold text-amber-700 tracking-widest text-center">{data.prizeCode}</p>
+                     </div>
+                  )}
                 </div>
                
                 <div className="mt-auto w-full mb-12 pb-6 shrink-0">
                   <div className="flex items-center justify-center gap-2 mb-2 opacity-20">
-                     <div className={`h-[1px] flex-1 ${chakraInfo.color.replace('border', 'bg')}`}></div>
-                     <Feather className="w-3 h-3 text-slate-400" />
-                     <div className={`h-[1px] flex-1 ${chakraInfo.color.replace('border', 'bg')}`}></div>
+                      <div className={`h-[1px] flex-1 ${styleInfo.color.replace('border', 'bg')}`}></div>
+                      <Feather className="w-3 h-3 text-slate-400" />
+                      <div className={`h-[1px] flex-1 ${styleInfo.color.replace('border', 'bg')}`}></div>
                   </div>
-                  <div className={`text-xs text-left leading-relaxed font-light px-4 py-3 rounded bg-slate-50/50 ${theme === 'day' ? chakraInfo.dayTextColor || chakraInfo.textColor : chakraInfo.textColor}`}>
-                     <span className="font-bold text-[9px] opacity-60 uppercase tracking-wider block mb-1">Energy Awareness</span>
-                     <div className="font-medium mb-1 opacity-80 text-[10px] tracking-wide">{chakraInfo.name}</div>
-                     {chakraInfo.guidance}
+                  <div className={`text-xs leading-relaxed font-light px-4 py-3 rounded bg-slate-50/50 ${theme === 'day' ? styleInfo.dayTextColor || styleInfo.textColor : styleInfo.textColor} ${isPrize ? 'text-center' : 'text-left'}`}>
+                      <span className="font-bold text-[9px] opacity-60 uppercase tracking-wider block mb-1">{isPrize ? 'Special Event' : 'Energy Awareness'}</span>
+                      <div className="font-medium mb-1 opacity-80 text-[10px] tracking-wide">{styleInfo.name}</div>
+                      {styleInfo.guidance}
                   </div>
                 </div>
              </div>
-             <div className="pb-3 text-[8px] uppercase tracking-[0.2em] text-slate-400/60 font-light mt-2 absolute bottom-0 w-full text-center">{chakraInfo.name}</div>
+             <div className="pb-3 text-[8px] uppercase tracking-[0.2em] text-slate-400/60 font-light mt-2 absolute bottom-0 w-full text-center">{styleInfo.name}</div>
           </div>
         </div>
-
 
       </div>
     </div>
   );
 };
 
-
 // --- 隱藏的分享卡片生成區 ---
 const ShareCardView = ({ cardSelected, theme, targetRef }) => {
   if (!cardSelected) return null;
-
 
   return (
     <div ref={targetRef} className={`fixed top-[-9999px] left-[-9999px] w-[400px] p-8 flex flex-col items-center justify-center gap-6 ${theme === 'night' ? 'bg-[#1e2029] text-white' : 'bg-[#F5F5F0] text-slate-800'}`}>
@@ -399,9 +422,101 @@ const ShareCardView = ({ cardSelected, theme, targetRef }) => {
   );
 };
 
+// --- [NEW] 迷你倒數計時器 (for Button) ---
+const MiniCooldownTimer = ({ targetTime, onComplete, theme }) => {
+  const [timeLeft, setTimeLeft] = useState('');
+
+  useEffect(() => {
+    const updateTimer = () => {
+      const now = new Date().getTime();
+      const distance = targetTime - now;
+
+      if (distance < 0) {
+        onComplete(); // 倒數結束，觸發回調
+      } else {
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        setTimeLeft(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+      }
+    };
+    
+    updateTimer(); 
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [targetTime, onComplete]);
+
+  return (
+    // 優化：與 Download 按鈕完全等寬等高、對稱的樣式
+    <div className={`relative px-6 py-2 overflow-hidden rounded-full bg-transparent border flex items-center justify-center gap-2 select-none ${theme === 'night' ? 'border-white/10 bg-white/5 text-indigo-300/60' : 'border-slate-300 bg-slate-100/50 text-slate-500/60'}`}>
+        <Clock className="w-3 h-3 animate-pulse" />
+        <span className="tracking-[0.2em] text-xs font-mono font-medium">{timeLeft}</span>
+    </div>
+  );
+};
+
+// --- 全螢幕計時器組件 ---
+const CooldownTimer = ({ targetTime, onComplete, theme }) => {
+  const [timeLeft, setTimeLeft] = useState('');
+
+  useEffect(() => {
+    const updateTimer = () => {
+      const now = new Date().getTime();
+      const distance = targetTime - now;
+
+      if (distance < 0) {
+        onComplete();
+      } else {
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        setTimeLeft(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+      }
+    };
+    
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [targetTime, onComplete]);
+
+  return (
+    <div className={`flex flex-col items-center justify-center p-8 rounded-2xl border backdrop-blur-sm animate-fadeIn ${theme === 'night' ? 'bg-white/5 border-white/10' : 'bg-white/60 border-stone-200'}`}>
+       <Clock className={`w-8 h-8 mb-4 ${theme === 'night' ? 'text-indigo-300' : 'text-orange-400'} animate-pulse`} />
+       <p className={`text-sm tracking-widest uppercase mb-2 ${theme === 'night' ? 'text-indigo-200' : 'text-slate-500'}`}>Next Draw Available In</p>
+       <div className={`text-4xl font-light font-mono ${theme === 'night' ? 'text-white' : 'text-slate-700'}`}>{timeLeft}</div>
+       <p className={`text-[10px] mt-4 max-w-xs text-center leading-relaxed opacity-60 ${theme === 'night' ? 'text-indigo-200' : 'text-slate-500'}`}>
+         宇宙需要時間為您準備新的能量。請稍後再回來。
+       </p>
+    </div>
+  );
+};
 
 export default function App() {
-  const [gameState, setGameState] = useState('intro');
+  const [gameState, setGameState] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const storedLastDraw = localStorage.getItem('lastEnergyDraw');
+      if (storedLastDraw) {
+        const lastDrawTime = parseInt(storedLastDraw, 10);
+        const sixHours = 6 * 60 * 60 * 1000;
+        const target = lastDrawTime + sixHours;
+        if (new Date().getTime() < target) {
+          return 'cooldown';
+        }
+      }
+    }
+    return 'intro';
+  });
+
+  const [nextDrawTime, setNextDrawTime] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const storedLastDraw = localStorage.getItem('lastEnergyDraw');
+      if (storedLastDraw) {
+        return parseInt(storedLastDraw, 10) + (6 * 60 * 60 * 1000);
+      }
+    }
+    return null;
+  });
+
   const [drawnCards, setDrawnCards] = useState([]);
   const [flippedStates, setFlippedStates] = useState([false, false]);
   const [theme, setTheme] = useState('night');
@@ -413,28 +528,22 @@ export default function App() {
   const shareRef = useRef(null);
   const [isMuted, setIsMuted] = useState(false);
   const bgmRef = useRef(null);
- 
-  // Swipe Logic States
+  const [isHintActive, setIsHintActive] = useState(false);
+  
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
-  const [showGestureHint, setShowGestureHint] = useState(false);
-
 
   useEffect(() => {
     const hour = new Date().getHours();
     if (hour >= 6 && hour < 18) setTheme('day');
     else setTheme('night');
-  }, []);
-
-
-  useEffect(() => {
+    
     const script = document.createElement('script');
     script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
     script.async = true;
     document.body.appendChild(script);
     return () => { if (document.body.contains(script)) document.body.removeChild(script); };
   }, []);
-
 
   useEffect(() => {
     if (!bgmRef.current) {
@@ -446,33 +555,22 @@ export default function App() {
     if (bgm.src !== targetSrc) {
       bgm.src = targetSrc;
       bgm.load();
-      if (!isMuted) bgm.play().catch(e => console.log("Autoplay prevented", e));
     }
-  }, [theme]);
-
-
-  useEffect(() => {
-    if (bgmRef.current) {
-      if (isMuted) bgmRef.current.pause();
-      else bgmRef.current.play().catch(e => console.log("Playback failed", e));
+    if (isMuted) bgm.pause();
+    else if (gameState !== 'intro' && gameState !== 'cooldown' && gameState !== 'loading') {
+       bgm.play().catch(e => console.log("Autoplay prevented", e));
     }
-  }, [isMuted]);
+  }, [theme, isMuted, gameState]);
 
-
-  // Gesture Hint Timer Logic
   useEffect(() => {
     let timer;
-    // 只有當剛好翻開一張牌，且遊戲狀態是 drawing 時，才開始計時顯示手勢提示
     if (gameState === 'drawing' && flippedStates.filter(Boolean).length === 1) {
-      timer = setTimeout(() => {
-        setShowGestureHint(true);
-      }, 3000); // 3秒後顯示
+      timer = setTimeout(() => setIsHintActive(true), 3000);
     } else {
-      setShowGestureHint(false);
+      setIsHintActive(false);
     }
     return () => clearTimeout(timer);
   }, [flippedStates, gameState]);
-
 
   const playSfx = (type) => {
     if (isMuted) return;
@@ -481,10 +579,8 @@ export default function App() {
     sfx.play().catch(e => console.log("SFX failed", e));
   };
 
-
   const toggleTheme = () => { playSfx('click'); setTheme(prev => prev === 'day' ? 'night' : 'day'); };
   const toggleMute = () => { setIsMuted(prev => !prev); };
-
 
   useEffect(() => {
     const newParticles = Array.from({ length: 40 }).map((_, i) => ({
@@ -498,7 +594,6 @@ export default function App() {
     setParticles(newParticles);
   }, []);
 
-
   const drawCards = () => {
     if (bgmRef.current && bgmRef.current.paused && !isMuted) {
       bgmRef.current.play().catch(e => console.error("Audio play failed:", e));
@@ -506,25 +601,46 @@ export default function App() {
     playSfx('click');
     setGameState('shuffling');
     if (navigator.vibrate) navigator.vibrate(50);
+    
     setTimeout(() => {
+      const isWinner = Math.random() < 0.10; 
       const shuffled = [...QUOTES_DB].sort(() => 0.5 - Math.random());
       const selected = shuffled.slice(0, 2);
+
+      if (isWinner) {
+        selected[1] = {
+          text: "恭喜獲得「健康關係實驗小聚」入場券！我們在實驗室等你。",
+          en: "Exclusive Invitation to The Healthy Relationships Lab.",
+          type: "prize",
+          prizeCode: generatePrizeCode()
+        };
+      }
+
+      const now = new Date().getTime();
+      localStorage.setItem('lastEnergyDraw', now.toString());
+      setNextDrawTime(now + (6 * 60 * 60 * 1000));
+      
       setDrawnCards(selected);
       setGameState('drawing');
     }, 2500);
   };
-
 
   const toggleFlip = (index) => {
     const isMobile = window.innerWidth < 768;
     if (isMobile && mobileFocusIndex !== index) {
       playSfx('click');
       setMobileFocusIndex(index);
-      setShowGestureHint(false);
+      setIsHintActive(false);
       return;
     }
     if (flippedStates[index]) return;
-    playSfx('cardFlip');
+    
+    if (drawnCards[index].type === 'prize') {
+       playSfx('win');
+    } else {
+       playSfx('cardFlip');
+    }
+
     const newFlipped = [...flippedStates];
     newFlipped[index] = true;
     setFlippedStates(newFlipped);
@@ -534,53 +650,56 @@ export default function App() {
     }
   };
 
-
-  // --- Touch Event Handlers ---
+  // --- Swipe Logic ---
   const minSwipeDistance = 50;
-
-
-  const onTouchStart = (e) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-
-  const onTouchMove = (e) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-
-
+  const onTouchStart = (e) => { setTouchEnd(null); setTouchStart(e.targetTouches[0].clientX); };
+  const onTouchMove = (e) => { setTouchEnd(e.targetTouches[0].clientX); };
   const onTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
-   
     if (isLeftSwipe || isRightSwipe) {
-       // Toggle focus
        const isMobile = window.innerWidth < 768;
        if (isMobile) {
           setMobileFocusIndex(prev => prev === 0 ? 1 : 0);
           playSfx('swoosh');
-          setShowGestureHint(false);
+          setIsHintActive(false);
        }
     }
   };
 
-
   const resetGame = () => {
+    const storedLastDraw = localStorage.getItem('lastEnergyDraw');
+    if (storedLastDraw) {
+      const lastDrawTime = parseInt(storedLastDraw, 10);
+      const sixHours = 6 * 60 * 60 * 1000;
+      const target = lastDrawTime + sixHours;
+      if (new Date().getTime() < target) {
+        setNextDrawTime(target);
+        setGameState('cooldown');
+      } else {
+        setGameState('intro');
+      }
+    } else {
+      setGameState('intro');
+    }
     playSfx('click');
-    setGameState('intro');
     setFlippedStates([false, false]);
     setDrawnCards([]);
     setMobileFocusIndex(0);
     setShowShareModal(false);
-    setShowGestureHint(false);
+    setIsHintActive(false);
+  };
+  
+  const handleCooldownComplete = () => {
+     setNextDrawTime(null); // 清除時間，讓按鈕變回 DRAW AGAIN
+     if (gameState === 'cooldown') {
+        setGameState('intro');
+     }
   };
 
-
   const initiateShare = () => { playSfx('click'); setShowShareModal(true); };
-
 
   const executeShare = async (card) => {
     playSfx('click');
@@ -596,13 +715,14 @@ export default function App() {
           scale: 3
         });
         canvas.toBlob(async (blob) => {
-          const file = new File([blob], "daily-energy-card.png", { type: "image/png" });
+          const fileName = card.type === 'prize' ? `LAB-INVITE-${card.prizeCode}.png` : `energy-card-${new Date().toISOString().split('T')[0]}.png`;
+          const file = new File([blob], fileName, { type: "image/png" });
           if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-            try { await navigator.share({ files: [file], title: '今日能量卡', text: `這是我今天的宇宙指引：${card.text} ✨` }); }
+            try { await navigator.share({ files: [file], title: '今日能量卡', text: card.type === 'prize' ? `我抽到了健康關係實驗室的邀請函！序號：${card.prizeCode} 🔬` : `這是我今天的宇宙指引：${card.text} ✨` }); }
             catch (err) { console.log("Share canceled", err); }
           } else {
             const link = document.createElement('a');
-            link.download = `energy-card-${new Date().toISOString().split('T')[0]}.png`;
+            link.download = fileName;
             link.href = canvas.toDataURL();
             link.click();
           }
@@ -613,21 +733,18 @@ export default function App() {
     }, 500);
   };
 
-
-  // 判斷手機版提示文字 (簡化版，只保留最重要的狀態)
   const getMobileInstruction = () => {
     const flippedCount = flippedStates.filter(Boolean).length;
     if (flippedCount === 0) return "點擊卡牌翻開訊息";
-    // 這裡我們不提示 "切換"，因為有手勢提示動畫了，保持文字乾淨
     return "";
   };
 
+  if (gameState === 'loading') return null;
 
   return (
     <div className={`min-h-screen w-full font-sans overflow-hidden flex flex-col items-center justify-center relative transition-colors duration-1000 ${theme === 'night' ? 'bg-[#050510] text-white' : 'bg-[#F0EFEB] text-slate-800'}`}>
      
       <ShareCardView cardSelected={cardToShare} theme={theme} targetRef={shareRef} />
-
 
       {showShareModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn">
@@ -637,10 +754,10 @@ export default function App() {
             <div className="flex gap-4 justify-center w-full">
               {drawnCards.map((card, idx) => (
                 <div key={idx} className="flex flex-col items-center gap-3 cursor-pointer group" onClick={() => executeShare(card)}>
-                  <div className="transform transition-transform duration-300 group-hover:scale-105 group-hover:-translate-y-2 shadow-lg rounded-xl overflow-hidden">
+                  <div className={`transform transition-transform duration-300 group-hover:scale-105 group-hover:-translate-y-2 shadow-lg rounded-xl overflow-hidden ${card.type === 'prize' ? 'ring-2 ring-amber-400' : ''}`}>
                     <div className="w-32 h-48 pointer-events-none"><Card data={card} isRevealed={true} index={idx} theme={theme} className="w-full h-full" /></div>
                   </div>
-                  <span className="text-xs tracking-widest opacity-60 group-hover:opacity-100">{idx === 0 ? '指引卡' : '能量卡'}</span>
+                  <span className={`text-xs tracking-widest opacity-60 group-hover:opacity-100 ${card.type === 'prize' ? 'text-amber-500 font-bold' : ''}`}>{card.type === 'prize' ? '✨ 獎品卡' : (idx === 0 ? '指引卡' : '能量卡')}</span>
                 </div>
               ))}
             </div>
@@ -648,12 +765,10 @@ export default function App() {
         </div>
       )}
 
-
       <div className={`fixed bottom-4 right-4 z-40 flex items-center gap-2 transition-opacity duration-300 ${theme === 'night' ? 'text-white/20 hover:text-white/50' : 'text-slate-800/20 hover:text-slate-800/50'}`}>
          <Microscope className="w-4 h-4" />
          <span className="text-[10px] tracking-widest font-serif">Powered by 健康關係實驗室</span>
       </div>
-
 
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
          {theme === 'night' ? (
@@ -673,7 +788,6 @@ export default function App() {
          )}
       </div>
 
-
       <div className="absolute top-6 left-6 z-50">
         <button onClick={toggleMute} className={`p-3 rounded-full backdrop-blur-md border transition-all duration-500 hover:scale-110 ${theme === 'night' ? 'bg-white/5 border-white/10 text-indigo-200 hover:bg-white/10' : 'bg-[#FFF9F0]/80 border-orange-200/50 text-orange-400 hover:bg-white shadow-sm'}`} title={isMuted ? "Unmute Sound" : "Mute Sound"}>
           {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
@@ -684,7 +798,6 @@ export default function App() {
           {theme === 'night' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </button>
       </div>
-
 
       <div className="z-10 w-full max-w-4xl px-4 flex flex-col items-center">
         <header className="mb-6 md:mb-10 text-center relative">
@@ -697,6 +810,9 @@ export default function App() {
           </div>
         </header>
 
+        {gameState === 'cooldown' && nextDrawTime && (
+          <CooldownTimer targetTime={nextDrawTime} onComplete={handleCooldownComplete} theme={theme} />
+        )}
 
         {gameState === 'intro' && (
           <div className="flex flex-col items-center animate-fadeIn">
@@ -718,7 +834,6 @@ export default function App() {
           </div>
         )}
 
-
         {gameState === 'shuffling' && (
           <div className="flex flex-col items-center justify-center h-80">
             <div className="relative">
@@ -730,13 +845,9 @@ export default function App() {
           </div>
         )}
 
-
         {(gameState === 'drawing' || gameState === 'result') && (
           <div className="w-full flex flex-col items-center">
            
-            {/* Gesture Hint Animation Overlay - REMOVED! Purely physical card nudge now. */}
-
-
             <div
                className="relative w-full h-[450px] md:h-auto flex justify-center items-center perspective-1000 mb-6 md:mb-10"
                onTouchStart={onTouchStart}
@@ -754,12 +865,15 @@ export default function App() {
                       : "animate-flash-glow-night ring-4 ring-white shadow-[0_0_80px_rgba(255,255,255,1)] rounded-xl relative z-50")
                   : "";
 
-
                 let containerStyle = {};
                 if (isMobile) {
                   if (isFocused) {
-                    // Center Card Animation (Nudge Center)
-                    const nudgeStyle = showGestureHint ? { animation: 'card-nudge-center 1.5s ease-in-out infinite' } : {};
+                    // Center Card (Foreground)
+                    // Index 0 (左卡): 預設向左逆時針 nudge (暗示往右滑)
+                    // Index 1 (右卡): 鏡像向右順時針 nudge (暗示往左滑)
+                    const animationName = idx === 0 ? 'card-nudge-center' : 'card-nudge-center-mirror';
+                    const nudgeStyle = isHintActive ? { animation: `${animationName} 1.5s ease-in-out infinite` } : {};
+                    
                     containerStyle = {
                       zIndex: 50,
                       transform: 'translate(-50%, -50%) scale(1.05) rotate(0deg)',
@@ -768,45 +882,57 @@ export default function App() {
                       ...nudgeStyle
                     };
                   } else {
-                    // Background Card Animation (Nudge Back)
-                    // If we are showing hint, animate the back card too
-                    const nudgeBackStyle = showGestureHint && idx === 1 && mobileFocusIndex === 0
-                      ? { animation: 'card-nudge-back-friction 1.5s ease-in-out infinite' }
-                      : {};
-                     
+                    // Background Card Animation Logic (Mirrored)
+                    let animationStyle = {};
+                    let animationName = '';
+
+                    // 判斷是左邊還是右邊的背景卡，分別給予鏡像動畫
+                    if (isHintActive) {
+                        animationName = idx === 0 ? 'card-life-cycle-left' : 'card-life-cycle-right';
+                        animationStyle = { animation: `${animationName} 16s ease-in-out forwards` };
+                    }
+
+                    // 基礎位置也必須分開設定，確保切換時不會瞬移
+                    const baseX = idx === 0 ? '-65%' : '-35%';
+                    const baseRot = idx === 0 ? '-5deg' : '5deg';
+
                     containerStyle = {
                         zIndex: shouldGlow ? 40 : 10,
-                        transform: `translate(${idx === 0 ? '-65%' : '-35%'}, -48%) scale(0.95) rotate(${idx === 0 ? '-5deg' : '5deg'})`,
+                        transform: `translate(${baseX}, -48%) scale(0.95) rotate(${baseRot})`,
                         top: '55%',
                         left: '50%',
-                        ...nudgeBackStyle
+                        ...animationStyle
                     };
                   }
                 } else {
                   containerStyle = { margin: '0 20px' };
                 }
 
-
                 return (
                   <div key={idx} className={`${isMobile ? 'absolute' : 'relative'} flex flex-col items-center gap-6 transition-all duration-500`} style={containerStyle} onClick={() => isMobile && toggleFlip(idx)}>
-                    <span className={`text-[10px] tracking-[0.3em] uppercase transition-all duration-1000 ${flippedStates[idx] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'} ${theme === 'night' ? 'text-indigo-300/40' : 'text-slate-400/60'}`}>{idx === 0 ? 'Guidance · 指引' : 'Energy · 能量'}</span>
+                    <span className={`text-[10px] tracking-[0.3em] uppercase transition-all duration-1000 ${flippedStates[idx] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'} ${theme === 'night' ? 'text-indigo-300/40' : 'text-slate-400/60'}`}>{idx === 0 ? 'Guidance · 指引' : (card.type === 'prize' ? 'Prize · 獎品' : 'Energy · 能量')}</span>
                     <Card index={idx} data={card} isRevealed={flippedStates[idx]} onClick={() => toggleFlip(idx)} theme={theme} isMobileFocused={isFocused} className={glowClass} />
                   </div>
                 );
               })}
             </div>
 
-
             {gameState === 'result' && (
               <div className="animate-fadeInUp flex flex-col items-center gap-4 mt-2 md:mt-0 z-50">
                 <div className="flex gap-4">
-                  <button onClick={resetGame} className={`group relative px-6 py-2 overflow-hidden rounded-full bg-transparent border transition-all duration-300 ${theme === 'night' ? 'border-white/10 hover:border-white/30' : 'border-slate-300 hover:border-slate-400'}`}>
-                    <div className={`absolute inset-0 w-0 transition-all duration-[250ms] ease-out group-hover:w-full ${theme === 'night' ? 'bg-white/5' : 'bg-slate-100'}`}></div>
-                    <div className="relative flex items-center gap-2">
-                      <RefreshCw className={`w-3 h-3 group-hover:rotate-180 transition-transform duration-700 ${theme === 'night' ? 'text-indigo-300' : 'text-slate-500'}`} />
-                      <span className={`tracking-[0.2em] text-xs ${theme === 'night' ? 'text-indigo-200' : 'text-slate-600'}`}>RESTART</span>
-                    </div>
-                  </button>
+                  {/* [MODIFIED] 使用實時倒數組件替換靜態文字 */}
+                  {!nextDrawTime ? (
+                    <button onClick={resetGame} className={`group relative px-6 py-2 overflow-hidden rounded-full bg-transparent border transition-all duration-300 ${theme === 'night' ? 'border-white/10 hover:border-white/30' : 'border-slate-300 hover:border-slate-400'}`}>
+                      <div className={`absolute inset-0 w-0 transition-all duration-[250ms] ease-out group-hover:w-full ${theme === 'night' ? 'bg-white/5' : 'bg-slate-100'}`}></div>
+                      <div className="relative flex items-center gap-2">
+                        <RefreshCw className={`w-3 h-3 group-hover:rotate-180 transition-transform duration-700 ${theme === 'night' ? 'text-indigo-300' : 'text-slate-500'}`} />
+                        <span className={`tracking-[0.2em] text-xs ${theme === 'night' ? 'text-indigo-200' : 'text-slate-600'}`}>DRAW AGAIN</span>
+                      </div>
+                    </button>
+                  ) : (
+                    <MiniCooldownTimer targetTime={nextDrawTime} onComplete={handleCooldownComplete} theme={theme} />
+                  )}
+
                   <button onClick={initiateShare} disabled={isSharing} className={`group relative px-6 py-2 overflow-hidden rounded-full bg-transparent border transition-all duration-300 ${theme === 'night' ? 'border-indigo-500/50 hover:border-indigo-400 bg-indigo-900/20' : 'border-orange-300 hover:border-orange-400 bg-orange-50'}`}>
                     <div className="relative flex items-center gap-2">
                       {isSharing ? <span className="animate-spin"><RefreshCw className="w-3 h-3" /></span> : <Download className={`w-3 h-3 ${theme === 'night' ? 'text-indigo-300' : 'text-orange-500'}`} />}
@@ -835,24 +961,99 @@ export default function App() {
         .animate-fadeInUp { animation: fadeInUp 1s ease-out forwards; }
         .animate-pulse-slow { animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
         .animate-spin-slow { animation: spin 12s linear infinite; }
+        .animate-bounce-slow { animation: bounce 3s infinite; }
        
         /* 卡牌物理暗示 (Nudge Center - Focused Card) */
         @keyframes card-nudge-center {
           0%, 100% { transform: translate(-50%, -50%) rotate(0deg) scale(1.05); }
-          25% { transform: translate(-58%, -50%) rotate(-3deg) scale(1.05); } /* 向左推動 */
+          25% { transform: translate(-58%, -50%) rotate(-3deg) scale(1.05); }
           50% { transform: translate(-50%, -50%) rotate(0deg) scale(1.05); }
         }
 
-
-        /* 卡牌物理暗示 (Nudge Back Friction - Background Card) */
-        @keyframes card-nudge-back-friction {
-          0%, 100% { transform: translate(-35%, -48%) rotate(5deg) scale(0.95); }
-          25% { transform: translate(-30%, -48%) rotate(7deg) scale(0.95); } /* 反向向右推動，產生摩擦/剝離感 */
-          50% { transform: translate(-35%, -48%) rotate(5deg) scale(0.95); }
+        /* 鏡像卡牌物理暗示 (Nudge Center Mirror - Focused Card) */
+        @keyframes card-nudge-center-mirror {
+          0%, 100% { transform: translate(-50%, -50%) rotate(0deg) scale(1.05); }
+          25% { transform: translate(-42%, -50%) rotate(3deg) scale(1.05); } /* 向右移，順時針 */
+          50% { transform: translate(-50%, -50%) rotate(0deg) scale(1.05); }
         }
 
+        /* --- RIGHT Side Animation (For Index 1 in background) --- */
+        @keyframes card-life-cycle-right {
+          /* --- 靜止 --- */
+          0%, 18% { transform: translate(-35%, -48%) rotate(5deg) scale(0.95); }
 
-        /* 自定義急促閃爍動畫 - 日間模式 (Orange) */
+          /* --- 晃動 --- */
+          20% { transform: translate(-35%, -48%) rotate(9deg) scale(0.95); }
+          22% { transform: translate(-35%, -48%) rotate(1deg) scale(0.95); }
+          24% { transform: translate(-35%, -48%) rotate(8deg) scale(0.95); }
+          26% { transform: translate(-35%, -48%) rotate(2deg) scale(0.95); }
+          28%, 30% { transform: translate(-35%, -48%) rotate(5deg) scale(0.95); }
+
+          /* --- 小跳 --- */
+          33% { transform: translate(-35%, -46%) rotate(5deg) scale(0.98, 0.92); }
+          36% { transform: translate(-35%, -62%) rotate(5deg) scale(0.94, 0.97); animation-timing-function: ease-out; }
+          39% { transform: translate(-35%, -48%) rotate(5deg) scale(0.95); animation-timing-function: ease-in; }
+          42% { transform: translate(-35%, -48%) rotate(5deg) scale(0.95); }
+          44% { transform: translate(-35%, -46%) rotate(5deg) scale(0.98, 0.92); }
+          47% { transform: translate(-35%, -65%) rotate(5deg) scale(0.94, 0.97); }
+          50% { transform: translate(-35%, -48%) rotate(5deg) scale(0.95); }
+
+          /* --- 中跳 --- */
+          53% { transform: translate(-35%, -45%) rotate(5deg) scale(1.02, 0.88); }
+          57% { transform: translate(-35%, -82%) rotate(2deg) scale(0.95, 1.05); animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+          60% { transform: translate(-35%, -82%) rotate(2deg) scale(0.95, 1.05); }
+          64% { transform: translate(-35%, -48%) rotate(5deg) scale(1.05, 0.9); animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53); }
+          68% { transform: translate(-35%, -55%) rotate(4deg) scale(0.98, 1.02); }
+          72% { transform: translate(-35%, -48%) rotate(5deg) scale(1.01, 0.99); }
+          75% { transform: translate(-35%, -48%) rotate(5deg) scale(0.95); }
+          
+          /* --- 結束 --- */
+          79% { transform: translate(-35%, -48%) rotate(5deg) scale(0.95); }
+          82% { transform: translate(-35%, -55%) rotate(5deg) scale(0.98, 0.98); }
+          85% { transform: translate(-35%, -48%) rotate(5deg) scale(0.95); }
+          90% { transform: translate(-35%, -48%) rotate(5.5deg) scale(0.95); }
+          100% { transform: translate(-35%, -48%) rotate(5deg) scale(0.95); }
+        }
+
+        /* --- LEFT Side Animation (Mirrored, For Index 0 in background) --- */
+        /* Changes: X translate -35 -> -65, Rotate positive -> negative */
+        @keyframes card-life-cycle-left {
+          /* --- 靜止 --- */
+          0%, 18% { transform: translate(-65%, -48%) rotate(-5deg) scale(0.95); }
+
+          /* --- 晃動 --- */
+          20% { transform: translate(-65%, -48%) rotate(-9deg) scale(0.95); }
+          22% { transform: translate(-65%, -48%) rotate(-1deg) scale(0.95); }
+          24% { transform: translate(-65%, -48%) rotate(-8deg) scale(0.95); }
+          26% { transform: translate(-65%, -48%) rotate(-2deg) scale(0.95); }
+          28%, 30% { transform: translate(-65%, -48%) rotate(-5deg) scale(0.95); }
+
+          /* --- 小跳 --- */
+          33% { transform: translate(-65%, -46%) rotate(-5deg) scale(0.98, 0.92); }
+          36% { transform: translate(-65%, -62%) rotate(-5deg) scale(0.94, 0.97); animation-timing-function: ease-out; }
+          39% { transform: translate(-65%, -48%) rotate(-5deg) scale(0.95); animation-timing-function: ease-in; }
+          42% { transform: translate(-65%, -48%) rotate(-5deg) scale(0.95); }
+          44% { transform: translate(-65%, -46%) rotate(-5deg) scale(0.98, 0.92); }
+          47% { transform: translate(-65%, -65%) rotate(-5deg) scale(0.94, 0.97); }
+          50% { transform: translate(-65%, -48%) rotate(-5deg) scale(0.95); }
+
+          /* --- 中跳 --- */
+          53% { transform: translate(-65%, -45%) rotate(-5deg) scale(1.02, 0.88); }
+          57% { transform: translate(-65%, -82%) rotate(-2deg) scale(0.95, 1.05); animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+          60% { transform: translate(-65%, -82%) rotate(-2deg) scale(0.95, 1.05); }
+          64% { transform: translate(-65%, -48%) rotate(-5deg) scale(1.05, 0.9); animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53); }
+          68% { transform: translate(-65%, -55%) rotate(-4deg) scale(0.98, 1.02); }
+          72% { transform: translate(-65%, -48%) rotate(-5deg) scale(1.01, 0.99); }
+          75% { transform: translate(-65%, -48%) rotate(-5deg) scale(0.95); }
+          
+          /* --- 結束 --- */
+          79% { transform: translate(-65%, -48%) rotate(-5deg) scale(0.95); }
+          82% { transform: translate(-65%, -55%) rotate(-5deg) scale(0.98, 0.98); }
+          85% { transform: translate(-65%, -48%) rotate(-5deg) scale(0.95); }
+          90% { transform: translate(-65%, -48%) rotate(-5.5deg) scale(0.95); }
+          100% { transform: translate(-65%, -48%) rotate(-5deg) scale(0.95); }
+        }
+
         @keyframes flashGlowDay {
           0%, 100% { opacity: 1; box-shadow: 0 0 20px rgba(249,115,22,0.6); transform: scale(1); }
           50% { opacity: 1; box-shadow: 0 0 60px rgba(249,115,22,0.9); transform: scale(1.02); }
@@ -861,8 +1062,6 @@ export default function App() {
           animation: flashGlowDay 1.2s infinite;
         }
 
-
-        /* 自定義急促閃爍動畫 - 夜間模式 (White) */
         @keyframes flashGlowWhite {
           0%, 100% { opacity: 1; box-shadow: 0 0 20px rgba(255,255,255,0.5); transform: scale(1); }
           50% { opacity: 1; box-shadow: 0 0 60px rgba(255,255,255,1); transform: scale(1.02); }
@@ -871,20 +1070,17 @@ export default function App() {
           animation: flashGlowWhite 1.5s infinite;
         }
 
-
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
        
-        /* 隱藏 Scrollbar */
         .no-scrollbar::-webkit-scrollbar {
           display: none;
         }
         .no-scrollbar {
-          -ms-overflow-style: none;  /* IE and Edge */
-          scrollbar-width: none;  /* Firefox */
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
       `}</style>
     </div>
   );
 }
-
