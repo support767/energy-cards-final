@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, RefreshCw, Heart, Zap, Infinity, Star, Move, Eye, Moon, Feather, Sun, Droplets, Wind, Mountain, Flower, Cloud, Download, X, Volume2, VolumeX, Microscope, ChevronLeft, ChevronRight, Clock, Ticket } from 'lucide-react';
+import { Sparkles, RefreshCw, Heart, Zap, Infinity, Star, Move, Eye, Moon, Feather, Sun, Droplets, Wind, Mountain, Flower, Cloud, Download, X, Volume2, VolumeX, Microscope, ChevronLeft, ChevronRight, Clock, Ticket, ShieldCheck, ShieldAlert, CheckCircle, AlertTriangle, Lock } from 'lucide-react';
 
 // --- 1. 音效資源連結 ---
 const AUDIO_SRC = {
@@ -8,10 +8,82 @@ const AUDIO_SRC = {
   cardFlip: "https://assets.mixkit.co/sfx/preview/mixkit-game-card-flip-2569.mp3",
   click: "https://assets.mixkit.co/sfx/preview/mixkit-modern-click-box-check-1120.mp3",
   swoosh: "https://assets.mixkit.co/sfx/preview/mixkit-light-transition-whoosh-2611.mp3",
-  win: "https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"
+  win: "https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3",
+  verifySuccess: "https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-2574.mp3",
+  verifyFail: "https://assets.mixkit.co/sfx/preview/mixkit-click-error-1110.mp3",
+  unlock: "https://assets.mixkit.co/sfx/preview/mixkit-unlock-new-item-game-notification-254.mp3" 
 };
 
-// --- 2. 卡牌樣式定義 ---
+// --- 2. 防偽加密邏輯 (雜訊混淆版：數字總和對映) ---
+
+// 檢查碼對應表 (Index 0~9)
+const KEY_MAP = ['K', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J'];
+
+// 雜訊字母池 
+const NOISE_CHARS = 'LMNPQRSTUVWXYZ';
+
+// 右半邊的偏移量 
+const SALT_RIGHT = 1; 
+
+const getRandomNoise = () => NOISE_CHARS[Math.floor(Math.random() * NOISE_CHARS.length)];
+const getRandomDigit = () => Math.floor(Math.random() * 10);
+
+const generateSecurePrizeCode = () => {
+  // 結構：L N L N C (L=雜訊字母, N=數字, C=檢查碼)
+  
+  // 1. 左半邊 Block A
+  const aN1 = getRandomDigit();
+  const aN2 = getRandomDigit();
+  const aCheckVal = (aN1 + aN2) % 10;
+  const aCheckChar = KEY_MAP[aCheckVal];
+  const blockA = `${getRandomNoise()}${aN1}${getRandomNoise()}${aN2}${aCheckChar}`;
+
+  // 2. 右半邊 Block B
+  const bN1 = getRandomDigit();
+  const bN2 = getRandomDigit();
+  const bCheckVal = (bN1 + bN2 + SALT_RIGHT) % 10;
+  const bCheckChar = KEY_MAP[bCheckVal];
+  const blockB = `${getRandomNoise()}${bN1}${getRandomNoise()}${bN2}${bCheckChar}`;
+  
+  // 組合：X8P5C-M2R4G
+  return `${blockA}-${blockB}`;
+};
+
+const verifyPrizeCode = (fullCode) => {
+  if (!fullCode || !fullCode.includes('-')) return false;
+  const parts = fullCode.split('-');
+  if (parts.length !== 2) return false;
+  
+  const blockA = parts[0].toUpperCase();
+  const blockB = parts[1].toUpperCase();
+  
+  if (blockA.length !== 5 || blockB.length !== 5) return false;
+
+  // --- 驗證左半邊 ---
+  const aN1 = parseInt(blockA[1], 10);
+  const aN2 = parseInt(blockA[3], 10);
+  const aCheckChar = blockA[4];
+
+  if (isNaN(aN1) || isNaN(aN2)) return false; 
+  
+  const expectedValA = (aN1 + aN2) % 10;
+  if (aCheckChar !== KEY_MAP[expectedValA]) return false;
+
+  // --- 驗證右半邊 ---
+  const bN1 = parseInt(blockB[1], 10);
+  const bN2 = parseInt(blockB[3], 10);
+  const bCheckChar = blockB[4];
+
+  if (isNaN(bN1) || isNaN(bN2)) return false;
+
+  const expectedValB = (bN1 + bN2 + SALT_RIGHT) % 10;
+  if (bCheckChar !== KEY_MAP[expectedValB]) return false;
+
+  return true;
+};
+
+
+// --- 3. 卡牌樣式定義 ---
 const CARD_STYLES = {
   // 脈輪系列
   root: { name: '海底輪 · Root Chakra', color: 'border-red-400', textColor: 'text-red-900', dayTextColor: 'text-red-900', subColor: 'text-red-600/60', shadow: 'shadow-red-900/10', iconColor: 'text-red-500', keywords: '生存 · 安全 · 穩定', guidance: '對應脊椎根部，代表生存本能、安全感與大地的連結。' },
@@ -287,35 +359,24 @@ const QUOTES_DB = [
   { text: "愛是所有問題的答案。", en: "Love is the answer to all questions.", type: "crown" },
 ];
 
-// --- 3. 工具函數 ---
-const generatePrizeCode = () => {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let code = '';
-  for (let i = 0; i < 8; i++) {
-    if (i === 4) code += '-';
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return code;
-};
-
 // --- 4. 組件 ---
 
 const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, className = "", autoHeight = false, captureMode = false }) => {
   const styleInfo = CARD_STYLES[data.type];
   if (!styleInfo) return null;
- 
+  
   const heightClass = autoHeight ? "h-auto min-h-96" : "h-96";
   const innerHeightClass = autoHeight ? "h-auto min-h-full" : "h-full";
   const isPrize = data.type === 'prize';
- 
+  
   return (
-    <div
+    <div 
       className={`relative w-64 ${heightClass} cursor-pointer ${!captureMode ? 'perspective-1000' : ''} transition-transform duration-700 ${className} ${isRevealed && !isMobileFocused ? '' : 'hover:scale-105'}`}
       onClick={onClick}
       style={{ transitionDelay: `${index * 150}ms` }}
     >
       <div className={`relative w-full ${innerHeightClass} ${!captureMode ? 'duration-1000 preserve-3d' : ''} transition-all ${(isRevealed && !captureMode) ? 'rotate-y-180' : ''}`}>
-       
+        
         {/* --- 卡牌背面 --- */}
         {!captureMode && (
           theme === 'night' ? (
@@ -353,7 +414,7 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
         {/* --- 卡牌正面 --- */}
         <div className={`${captureMode ? 'relative' : 'absolute'} w-full h-full backface-hidden rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.1)] ${!captureMode ? 'rotate-y-180' : ''} overflow-hidden flex flex-col items-center text-center p-1 ${theme === 'night' ? 'bg-[#FDFCF8] shadow-black/50' : 'bg-white border border-stone-300 shadow-xl shadow-stone-300/50'}`}>
           <div className={`w-full h-full border-2 ${styleInfo.color} rounded-lg flex flex-col relative overflow-hidden ${isPrize ? 'bg-gradient-to-br from-yellow-50 via-amber-100/20 to-yellow-50' : ''}`}>
-             
+              
              {isPrize && <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diamond-upholstery.png')] opacity-10"></div>}
              {isPrize && <div className="absolute inset-0 bg-gradient-to-tr from-amber-200/10 via-white/40 to-amber-200/10 animate-pulse"></div>}
 
@@ -370,19 +431,26 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
                    {data.type === 'crown' && <Sparkles strokeWidth={1.5} className="w-6 h-6" />}
                    {data.type === 'prize' && <Microscope strokeWidth={1.5} className="w-8 h-8 animate-bounce-slow" />}
                 </div>
-               
+                
                 <div className={`flex-1 w-full flex flex-col items-center justify-center my-2 ${autoHeight ? 'h-auto' : 'overflow-y-auto no-scrollbar'}`}>
-                  <h3 className={`text-base font-medium mb-2 leading-relaxed tracking-wide ${theme === 'day' ? styleInfo.dayTextColor || styleInfo.textColor : styleInfo.textColor} font-serif text-center`}>{data.text}</h3>
+                  {/* [修改] 增加 whitespace-pre-line 以支援換行顯示 */}
+                  <h3 className={`text-base font-medium mb-2 leading-relaxed tracking-wide ${theme === 'day' ? styleInfo.dayTextColor || styleInfo.textColor : styleInfo.textColor} font-serif text-center whitespace-pre-line`}>{data.text}</h3>
                   <p className="text-[10px] font-serif italic text-slate-500/80 leading-relaxed font-light text-center px-2">{data.en}</p>
                   
                   {isPrize && data.prizeCode && (
-                     <div className="mt-4 px-4 py-2 border border-amber-300/50 bg-amber-50/50 rounded-lg">
-                        <p className="text-[9px] text-amber-800/60 uppercase tracking-widest mb-1 text-center">Ticket Code</p>
-                        <p className="text-sm font-mono font-bold text-amber-700 tracking-widest text-center">{data.prizeCode}</p>
-                     </div>
+                      <div className="mt-4 w-full relative group">
+                        {/* 防偽背景紋路 */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-200/20 to-transparent rotate-45 transform scale-150 opacity-50"></div>
+                        <div className="relative px-4 py-2 border border-amber-300/50 bg-amber-50/50 rounded-lg overflow-hidden">
+                           <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-amber-400 to-transparent animate-shimmer"></div>
+                           <p className="text-[9px] text-amber-800/60 uppercase tracking-widest mb-1 text-center">Verification Code</p>
+                           <p className="text-sm font-mono font-bold text-amber-700 tracking-widest text-center">{data.prizeCode}</p>
+                           <p className="text-[8px] text-amber-600/40 text-center mt-1 scale-75 origin-center">{new Date().toISOString().split('T')[0]} AUTHENTIC</p>
+                        </div>
+                      </div>
                   )}
                 </div>
-               
+                
                 <div className="mt-auto w-full mb-12 pb-6 shrink-0">
                   <div className="flex items-center justify-center gap-2 mb-2 opacity-20">
                       <div className={`h-[1px] flex-1 ${styleInfo.color.replace('border', 'bg')}`}></div>
@@ -405,6 +473,7 @@ const Card = ({ data, isRevealed, onClick, index, theme, isMobileFocused, classN
   );
 };
 
+
 // --- 隱藏的分享卡片生成區 ---
 const ShareCardView = ({ cardSelected, theme, targetRef }) => {
   if (!cardSelected) return null;
@@ -422,7 +491,8 @@ const ShareCardView = ({ cardSelected, theme, targetRef }) => {
   );
 };
 
-// --- [NEW] 迷你倒數計時器 (for Button) ---
+
+// --- 迷你倒數計時器 (for Button) ---
 const MiniCooldownTimer = ({ targetTime, onComplete, theme }) => {
   const [timeLeft, setTimeLeft] = useState('');
 
@@ -432,7 +502,7 @@ const MiniCooldownTimer = ({ targetTime, onComplete, theme }) => {
       const distance = targetTime - now;
 
       if (distance < 0) {
-        onComplete(); // 倒數結束，觸發回調
+        onComplete();
       } else {
         const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
@@ -447,7 +517,6 @@ const MiniCooldownTimer = ({ targetTime, onComplete, theme }) => {
   }, [targetTime, onComplete]);
 
   return (
-    // 優化：與 Download 按鈕完全等寬等高、對稱的樣式
     <div className={`relative px-6 py-2 overflow-hidden rounded-full bg-transparent border flex items-center justify-center gap-2 select-none ${theme === 'night' ? 'border-white/10 bg-white/5 text-indigo-300/60' : 'border-slate-300 bg-slate-100/50 text-slate-500/60'}`}>
         <Clock className="w-3 h-3 animate-pulse" />
         <span className="tracking-[0.2em] text-xs font-mono font-medium">{timeLeft}</span>
@@ -482,7 +551,7 @@ const CooldownTimer = ({ targetTime, onComplete, theme }) => {
   return (
     <div className={`flex flex-col items-center justify-center p-8 rounded-2xl border backdrop-blur-sm animate-fadeIn ${theme === 'night' ? 'bg-white/5 border-white/10' : 'bg-white/60 border-stone-200'}`}>
        <Clock className={`w-8 h-8 mb-4 ${theme === 'night' ? 'text-indigo-300' : 'text-orange-400'} animate-pulse`} />
-       <p className={`text-sm tracking-widest uppercase mb-2 ${theme === 'night' ? 'text-indigo-200' : 'text-slate-500'}`}>Next Draw Available In</p>
+       <p className={`text-sm tracking-widest uppercase mb-2 ${theme === 'night' ? 'text-indigo-200' : 'text-slate-500'}`}>Next Awareness Available In</p>
        <div className={`text-4xl font-light font-mono ${theme === 'night' ? 'text-white' : 'text-slate-700'}`}>{timeLeft}</div>
        <p className={`text-[10px] mt-4 max-w-xs text-center leading-relaxed opacity-60 ${theme === 'night' ? 'text-indigo-200' : 'text-slate-500'}`}>
          宇宙需要時間為您準備新的能量。請稍後再回來。
@@ -490,6 +559,154 @@ const CooldownTimer = ({ targetTime, onComplete, theme }) => {
     </div>
   );
 };
+
+// --- 票券驗證模態框 (新增：登入/驗證雙模式) ---
+const VerifyModal = ({ isOpen, onClose, theme, playSfx }) => {
+  const [inputCode, setInputCode] = useState('');
+  const [verifyResult, setVerifyResult] = useState(null); // null, 'valid', 'invalid'
+  
+  // 新增：身份驗證狀態
+  const [isAuth, setIsAuth] = useState(false);
+  const [password, setPassword] = useState('');
+  const [authError, setAuthError] = useState(false);
+
+  // 每次開啟都重置
+  useEffect(() => {
+    if (isOpen) {
+        setIsAuth(false);
+        setPassword('');
+        setAuthError(false);
+        setInputCode('');
+        setVerifyResult(null);
+    }
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  // 處理開發者登入
+  const handleLogin = () => {
+      if (password === '0207') {
+          setIsAuth(true);
+          playSfx('unlock');
+      } else {
+          setAuthError(true);
+          playSfx('verifyFail');
+          setTimeout(() => setAuthError(false), 500); // 抖動效果重置
+      }
+  };
+
+  const handleVerify = () => {
+    const isValid = verifyPrizeCode(inputCode.trim().toUpperCase());
+    if (isValid) {
+      setVerifyResult('valid');
+      playSfx('verifySuccess');
+    } else {
+      setVerifyResult('invalid');
+      playSfx('verifyFail');
+    }
+  };
+
+  const resetVerify = () => {
+    setVerifyResult(null);
+    setInputCode('');
+  };
+
+  return (
+    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fadeIn">
+      <div className={`relative w-full max-w-sm p-6 rounded-2xl shadow-2xl flex flex-col items-center transition-colors duration-500 ${theme === 'night' ? 'bg-[#1e2029] text-white border border-white/10' : 'bg-[#FDFCF5] text-slate-800 border border-stone-200'}`}>
+        <button onClick={onClose} className="absolute top-4 right-4 opacity-50 hover:opacity-100"><X className="w-5 h-5" /></button>
+        
+        {!isAuth ? (
+            // --- 模式 A: 開發者登入鎖 ---
+            <div className="w-full flex flex-col items-center animate-fadeIn gap-4 py-4">
+                <div className={`p-4 rounded-full mb-2 ${authError ? 'bg-red-500/10 text-red-500' : (theme === 'night' ? 'bg-white/5 text-indigo-300' : 'bg-slate-100 text-slate-500')}`}>
+                    <Lock className={`w-6 h-6 ${authError ? 'animate-bounce' : ''}`} />
+                </div>
+                <h3 className="text-lg font-serif tracking-widest uppercase mb-1">Developer Access</h3>
+                <p className={`text-[10px] mb-4 opacity-50 ${theme === 'night' ? 'text-indigo-200' : 'text-slate-500'}`}>
+                  此功能僅供工作人員驗證使用
+                </p>
+                
+                <div className="w-full relative">
+                    <input 
+                        type="password" 
+                        placeholder="Enter Passcode"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className={`w-full p-3 rounded-lg text-center font-mono tracking-widest text-lg outline-none focus:ring-2 transition-all ${authError ? 'border-red-500 focus:ring-red-500/30 animate-shake' : (theme === 'night' ? 'bg-black/20 border border-white/10 focus:ring-indigo-500/50 text-white' : 'bg-white border border-stone-300 focus:ring-slate-400/50 text-slate-800')}`}
+                        onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+                    />
+                </div>
+                
+                <button 
+                  onClick={handleLogin}
+                  className={`w-full py-3 mt-2 rounded-lg font-medium tracking-wide transition-all hover:scale-[1.02] active:scale-95 ${theme === 'night' ? 'bg-indigo-600 hover:bg-indigo-500 text-white' : 'bg-slate-800 hover:bg-slate-700 text-white'}`}
+                >
+                  UNLOCK
+                </button>
+            </div>
+        ) : (
+            // --- 模式 B: 票券驗證介面 (解鎖後) ---
+            <>
+                <h3 className="text-lg font-serif tracking-wider mb-2 flex items-center gap-2 animate-fadeIn">
+                <ShieldCheck className={`w-5 h-5 ${theme === 'night' ? 'text-indigo-400' : 'text-amber-500'}`} />
+                驗證票券真偽
+                </h3>
+                <p className={`text-[10px] text-center mb-6 opacity-60 animate-fadeIn ${theme === 'night' ? 'text-indigo-200' : 'text-slate-500'}`}>
+                請輸入票券上的 Verification Code 進行校驗
+                </p>
+
+                {verifyResult === null ? (
+                <div className="w-full flex flex-col gap-4 animate-fadeIn">
+                    <input 
+                    type="text" 
+                    placeholder="e.g. A8P5C-M2R4G" 
+                    value={inputCode}
+                    onChange={(e) => setInputCode(e.target.value)}
+                    className={`w-full p-3 rounded-lg text-center font-mono tracking-widest uppercase outline-none focus:ring-2 transition-all ${theme === 'night' ? 'bg-black/20 border border-white/10 focus:ring-indigo-500/50 text-white' : 'bg-white border border-stone-300 focus:ring-amber-400/50 text-slate-800'}`}
+                    />
+                    <button 
+                    onClick={handleVerify}
+                    disabled={!inputCode}
+                    className={`w-full py-3 rounded-lg font-medium tracking-wide transition-all ${!inputCode ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02] active:scale-95'} ${theme === 'night' ? 'bg-indigo-600 hover:bg-indigo-500 text-white' : 'bg-amber-500 hover:bg-amber-400 text-white'}`}
+                    >
+                    驗證 CODE
+                    </button>
+                </div>
+                ) : (
+                <div className="w-full flex flex-col items-center animate-fadeInUp">
+                    {verifyResult === 'valid' ? (
+                        <div className="flex flex-col items-center text-green-500">
+                        <div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mb-4">
+                            <CheckCircle className="w-8 h-8" />
+                        </div>
+                        <h4 className="text-xl font-bold mb-1">驗證成功</h4>
+                        <p className="text-xs opacity-80 mb-6">此票券代碼有效且真實</p>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center text-red-500">
+                        <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mb-4">
+                            <AlertTriangle className="w-8 h-8" />
+                        </div>
+                        <h4 className="text-xl font-bold mb-1">驗證失敗</h4>
+                        <p className="text-xs opacity-80 mb-6">無效的代碼或已被偽造</p>
+                        </div>
+                    )}
+                    <button 
+                    onClick={resetVerify}
+                    className={`text-xs underline opacity-60 hover:opacity-100 ${theme === 'night' ? 'text-white' : 'text-slate-600'}`}
+                    >
+                    驗證另一張
+                    </button>
+                </div>
+                )}
+            </>
+        )}
+      </div>
+    </div>
+  );
+};
+
 
 export default function App() {
   const [gameState, setGameState] = useState(() => {
@@ -524,6 +741,7 @@ export default function App() {
   const [mobileFocusIndex, setMobileFocusIndex] = useState(0);
   const [isSharing, setIsSharing] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showVerifyModal, setShowVerifyModal] = useState(false); // 新增：驗證模態框狀態
   const [cardToShare, setCardToShare] = useState(null);
   const shareRef = useRef(null);
   const [isMuted, setIsMuted] = useState(false);
@@ -532,6 +750,9 @@ export default function App() {
   
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
+
+  // 長按計時器 Ref
+  const titlePressTimer = useRef(null);
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -594,6 +815,23 @@ export default function App() {
     setParticles(newParticles);
   }, []);
 
+  // --- 長按觸發邏輯 ---
+  const handleTitlePressStart = (e) => {
+      // 防止移動裝置上的默認選取行為
+      // e.preventDefault(); // 有時會阻礙點擊，視情況而定，這裡先不加
+      titlePressTimer.current = setTimeout(() => {
+          playSfx('click'); // 成功觸發提示音
+          setShowVerifyModal(true);
+      }, 10000); // 10秒
+  };
+
+  const handleTitlePressEnd = () => {
+      if (titlePressTimer.current) {
+          clearTimeout(titlePressTimer.current);
+          titlePressTimer.current = null;
+      }
+  };
+
   const drawCards = () => {
     if (bgmRef.current && bgmRef.current.paused && !isMuted) {
       bgmRef.current.play().catch(e => console.error("Audio play failed:", e));
@@ -603,16 +841,19 @@ export default function App() {
     if (navigator.vibrate) navigator.vibrate(50);
     
     setTimeout(() => {
+      // 1. 修改中獎率為 10%
       const isWinner = Math.random() < 0.10; 
       const shuffled = [...QUOTES_DB].sort(() => 0.5 - Math.random());
       const selected = shuffled.slice(0, 2);
 
       if (isWinner) {
+        // [修改] 針對雙重受眾的文案
         selected[1] = {
-          text: "恭喜獲得「健康關係實驗小聚」入場券！我們在實驗室等你。",
-          en: "Exclusive Invitation to The Healthy Relationships Lab.",
+          text: "恭喜獲得「健康關係實驗室」雙重祝福！\n\n✦ 交誼廳廳友：獲贈 實驗小聚入場券\n✦ 實驗員：升級 專屬禮品兌換券",
+          en: "Dual Destiny: Event Ticket for Guests, Exclusive Gift for Lab Members.",
           type: "prize",
-          prizeCode: generatePrizeCode()
+          // 2. 使用新的加密生成邏輯
+          prizeCode: generateSecurePrizeCode() 
         };
       }
 
@@ -693,10 +934,10 @@ export default function App() {
   };
   
   const handleCooldownComplete = () => {
-     setNextDrawTime(null); // 清除時間，讓按鈕變回 DRAW AGAIN
-     if (gameState === 'cooldown') {
+      setNextDrawTime(null); 
+      if (gameState === 'cooldown') {
         setGameState('intro');
-     }
+      }
   };
 
   const initiateShare = () => { playSfx('click'); setShowShareModal(true); };
@@ -718,7 +959,8 @@ export default function App() {
           const fileName = card.type === 'prize' ? `LAB-INVITE-${card.prizeCode}.png` : `energy-card-${new Date().toISOString().split('T')[0]}.png`;
           const file = new File([blob], fileName, { type: "image/png" });
           if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-            try { await navigator.share({ files: [file], title: '今日能量卡', text: card.type === 'prize' ? `我抽到了健康關係實驗室的邀請函！序號：${card.prizeCode} 🔬` : `這是我今天的宇宙指引：${card.text} ✨` }); }
+            // [修改] 分享文案同步更新
+            try { await navigator.share({ files: [file], title: '今日能量卡', text: card.type === 'prize' ? `我抽到了健康關係實驗室的雙重祝福卡！序號：${card.prizeCode} 🔬` : `這是我今天的宇宙指引：${card.text} ✨` }); }
             catch (err) { console.log("Share canceled", err); }
           } else {
             const link = document.createElement('a');
@@ -743,8 +985,11 @@ export default function App() {
 
   return (
     <div className={`min-h-screen w-full font-sans overflow-hidden flex flex-col items-center justify-center relative transition-colors duration-1000 ${theme === 'night' ? 'bg-[#050510] text-white' : 'bg-[#F0EFEB] text-slate-800'}`}>
-     
+      
       <ShareCardView cardSelected={cardToShare} theme={theme} targetRef={shareRef} />
+      
+      {/* 驗證模態框 */}
+      <VerifyModal isOpen={showVerifyModal} onClose={() => setShowVerifyModal(false)} theme={theme} playSfx={playSfx} />
 
       {showShareModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn">
@@ -765,9 +1010,12 @@ export default function App() {
         </div>
       )}
 
-      <div className={`fixed bottom-4 right-4 z-40 flex items-center gap-2 transition-opacity duration-300 ${theme === 'night' ? 'text-white/20 hover:text-white/50' : 'text-slate-800/20 hover:text-slate-800/50'}`}>
-         <Microscope className="w-4 h-4" />
-         <span className="text-[10px] tracking-widest font-serif">Powered by 健康關係實驗室</span>
+      {/* 右下角：僅剩 Powered by 文字，按鈕已移除 */}
+      <div className={`fixed bottom-4 right-4 z-40 flex flex-col items-end gap-2`}>
+         <div className={`flex items-center gap-2 opacity-50 ${theme === 'night' ? 'text-white/40' : 'text-slate-800/40'}`}>
+             <Microscope className="w-3 h-3" />
+             <span className="text-[9px] tracking-widest font-serif">Powered by 健康關係實驗室</span>
+         </div>
       </div>
 
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -800,13 +1048,25 @@ export default function App() {
       </div>
 
       <div className="z-10 w-full max-w-4xl px-4 flex flex-col items-center">
-        <header className="mb-6 md:mb-10 text-center relative">
+        <header className="mb-6 md:mb-10 text-center relative select-none">
           <div className={`absolute -inset-8 bg-gradient-to-r blur-xl ${theme === 'night' ? 'from-transparent via-purple-500/10 to-transparent' : 'from-transparent via-orange-300/10 to-transparent'}`}></div>
-          <h1 className={`text-3xl md:text-5xl font-light tracking-[0.3em] text-transparent bg-clip-text font-serif ${theme === 'night' ? 'bg-gradient-to-r from-indigo-100 via-white to-purple-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]' : 'bg-gradient-to-r from-slate-600 via-slate-800 to-slate-600 drop-shadow-sm'}`}>今日能量卡</h1>
+          {/* [隱藏觸發點] 
+              長按這個 H1 標題 10 秒鐘可喚起驗證視窗 
+          */}
+          <h1 
+            onMouseDown={handleTitlePressStart}
+            onMouseUp={handleTitlePressEnd}
+            onMouseLeave={handleTitlePressEnd}
+            onTouchStart={handleTitlePressStart}
+            onTouchEnd={handleTitlePressEnd}
+            className={`text-3xl md:text-5xl font-light tracking-[0.3em] text-transparent bg-clip-text font-serif cursor-default ${theme === 'night' ? 'bg-gradient-to-r from-indigo-100 via-white to-purple-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]' : 'bg-gradient-to-r from-slate-600 via-slate-800 to-slate-600 drop-shadow-sm'}`}
+          >
+            今日能量卡
+          </h1>
           <div className="flex items-center justify-center gap-2 mt-4 opacity-50">
-             <div className={`h-[1px] w-12 bg-gradient-to-r ${theme === 'night' ? 'from-transparent to-white' : 'from-transparent to-slate-400'}`}></div>
-             <p className={`text-[10px] md:text-xs tracking-[0.4em] font-light uppercase ${theme === 'night' ? 'text-indigo-200' : 'text-slate-500'}`}>Daily Energy Oracle</p>
-             <div className={`h-[1px] w-12 bg-gradient-to-l ${theme === 'night' ? 'from-transparent to-white' : 'from-transparent to-slate-400'}`}></div>
+              <div className={`h-[1px] w-12 bg-gradient-to-r ${theme === 'night' ? 'from-transparent to-white' : 'from-transparent to-slate-400'}`}></div>
+              <p className={`text-[10px] md:text-xs tracking-[0.4em] font-light uppercase ${theme === 'night' ? 'text-indigo-200' : 'text-slate-500'}`}>Daily Energy Oracle</p>
+              <div className={`h-[1px] w-12 bg-gradient-to-l ${theme === 'night' ? 'from-transparent to-white' : 'from-transparent to-slate-400'}`}></div>
           </div>
         </header>
 
@@ -822,11 +1082,11 @@ export default function App() {
               <div className={`relative w-56 h-80 rounded-xl shadow-2xl border flex flex-col items-center justify-center overflow-hidden transition-all duration-500 group-hover:-translate-y-2 ${theme === 'night' ? 'bg-[#0F0F1A] border-white/10 shadow-[0_0_40px_rgba(79,70,229,0.15)] group-hover:shadow-[0_0_60px_rgba(79,70,229,0.3)]' : 'bg-[#FFFDF5] border-orange-100 shadow-[0_10px_40px_rgba(251,146,60,0.1)] group-hover:shadow-[0_20px_60px_rgba(251,146,60,0.2)]'}`}>
                  <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
                  <div className={`w-40 h-40 border rounded-full flex items-center justify-center animate-spin-slow ${theme === 'night' ? 'border-white/5' : 'border-orange-200/20'}`}>
-                    <div className={`w-32 h-32 border rounded-full ${theme === 'night' ? 'border-white/5' : 'border-orange-200/20'}`}></div>
+                   <div className={`w-32 h-32 border rounded-full ${theme === 'night' ? 'border-white/5' : 'border-orange-200/20'}`}></div>
                  </div>
                  <div className="absolute flex flex-col items-center">
-                    {theme === 'night' ? <Moon className="w-8 h-8 text-indigo-300 mb-3 opacity-80" strokeWidth={1} /> : <Sun className="w-8 h-8 text-orange-400 mb-3 opacity-80" strokeWidth={1} />}
-                    <span className={`tracking-[0.2em] text-xs font-light ${theme === 'night' ? 'text-indigo-200/60' : 'text-slate-400'}`}>TOUCH TO CONNECT</span>
+                   {theme === 'night' ? <Moon className="w-8 h-8 text-indigo-300 mb-3 opacity-80" strokeWidth={1} /> : <Sun className="w-8 h-8 text-orange-400 mb-3 opacity-80" strokeWidth={1} />}
+                   <span className={`tracking-[0.2em] text-xs font-light ${theme === 'night' ? 'text-indigo-200/60' : 'text-slate-400'}`}>TOUCH TO CONNECT</span>
                  </div>
               </div>
             </div>
@@ -847,8 +1107,8 @@ export default function App() {
 
         {(gameState === 'drawing' || gameState === 'result') && (
           <div className="w-full flex flex-col items-center">
-           
-            <div
+            
+            <div 
                className="relative w-full h-[450px] md:h-auto flex justify-center items-center perspective-1000 mb-6 md:mb-10"
                onTouchStart={onTouchStart}
                onTouchMove={onTouchMove}
@@ -858,45 +1118,39 @@ export default function App() {
                 const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
                 const isFocused = mobileFocusIndex === idx;
                 const shouldGlow = isMobile && flippedStates.filter(Boolean).length === 1 && !flippedStates[idx];
-               
-                const glowClass = shouldGlow
-                  ? (theme === 'day'
-                      ? "animate-flash-glow-day ring-4 ring-orange-500 shadow-[0_0_80px_rgba(249,115,22,0.9)] rounded-xl relative z-50"
+                
+                const glowClass = shouldGlow 
+                  ? (theme === 'day' 
+                      ? "animate-flash-glow-day ring-4 ring-orange-500 shadow-[0_0_80px_rgba(249,115,22,0.9)] rounded-xl relative z-50" 
                       : "animate-flash-glow-night ring-4 ring-white shadow-[0_0_80px_rgba(255,255,255,1)] rounded-xl relative z-50")
                   : "";
 
                 let containerStyle = {};
                 if (isMobile) {
                   if (isFocused) {
-                    // Center Card (Foreground)
-                    // Index 0 (左卡): 預設向左逆時針 nudge (暗示往右滑)
-                    // Index 1 (右卡): 鏡像向右順時針 nudge (暗示往左滑)
                     const animationName = idx === 0 ? 'card-nudge-center' : 'card-nudge-center-mirror';
                     const nudgeStyle = isHintActive ? { animation: `${animationName} 1.5s ease-in-out infinite` } : {};
                     
-                    containerStyle = {
-                      zIndex: 50,
-                      transform: 'translate(-50%, -50%) scale(1.05) rotate(0deg)',
-                      top: '45%',
+                    containerStyle = { 
+                      zIndex: 50, 
+                      transform: 'translate(-50%, -50%) scale(1.05) rotate(0deg)', 
+                      top: '45%', 
                       left: '50%',
                       ...nudgeStyle
                     };
                   } else {
-                    // Background Card Animation Logic (Mirrored)
                     let animationStyle = {};
                     let animationName = '';
 
-                    // 判斷是左邊還是右邊的背景卡，分別給予鏡像動畫
                     if (isHintActive) {
                         animationName = idx === 0 ? 'card-life-cycle-left' : 'card-life-cycle-right';
                         animationStyle = { animation: `${animationName} 16s ease-in-out forwards` };
                     }
 
-                    // 基礎位置也必須分開設定，確保切換時不會瞬移
                     const baseX = idx === 0 ? '-65%' : '-35%';
                     const baseRot = idx === 0 ? '-5deg' : '5deg';
 
-                    containerStyle = {
+                    containerStyle = { 
                         zIndex: shouldGlow ? 40 : 10,
                         transform: `translate(${baseX}, -48%) scale(0.95) rotate(${baseRot})`,
                         top: '55%',
@@ -920,7 +1174,6 @@ export default function App() {
             {gameState === 'result' && (
               <div className="animate-fadeInUp flex flex-col items-center gap-4 mt-2 md:mt-0 z-50">
                 <div className="flex gap-4">
-                  {/* [MODIFIED] 使用實時倒數組件替換靜態文字 */}
                   {!nextDrawTime ? (
                     <button onClick={resetGame} className={`group relative px-6 py-2 overflow-hidden rounded-full bg-transparent border transition-all duration-300 ${theme === 'night' ? 'border-white/10 hover:border-white/30' : 'border-slate-300 hover:border-slate-400'}`}>
                       <div className={`absolute inset-0 w-0 transition-all duration-[250ms] ease-out group-hover:w-full ${theme === 'night' ? 'bg-white/5' : 'bg-slate-100'}`}></div>
@@ -942,7 +1195,7 @@ export default function App() {
                 </div>
               </div>
             )}
-           
+            
             {gameState === 'drawing' && !flippedStates.every(Boolean) && (
                <p className={`mt-4 mb-20 md:mb-8 animate-pulse tracking-[0.2em] text-xs font-light ${theme === 'night' ? 'text-indigo-200/50' : 'text-slate-400'} flex items-center gap-2`}>
                  {typeof window !== 'undefined' && window.innerWidth < 768 ? getMobileInstruction() : "點擊卡牌翻開訊息"}
@@ -951,7 +1204,7 @@ export default function App() {
           </div>
         )}
       </div>
-     
+      
       <style>{`
         .perspective-1000 { perspective: 1000px; }
         .preserve-3d { transform-style: preserve-3d; }
@@ -962,7 +1215,25 @@ export default function App() {
         .animate-pulse-slow { animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
         .animate-spin-slow { animation: spin 12s linear infinite; }
         .animate-bounce-slow { animation: bounce 3s infinite; }
-       
+        
+        /* 錯誤密碼時的抖動動畫 */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .animate-shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .animate-shimmer {
+            animation: shimmer 3s infinite linear;
+        }
+
         /* 卡牌物理暗示 (Nudge Center - Focused Card) */
         @keyframes card-nudge-center {
           0%, 100% { transform: translate(-50%, -50%) rotate(0deg) scale(1.05); }
@@ -1072,7 +1343,7 @@ export default function App() {
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-       
+        
         .no-scrollbar::-webkit-scrollbar {
           display: none;
         }
